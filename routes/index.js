@@ -42,7 +42,6 @@ module.exports = {
          <thead>
          <tr>
          <th>小组照片</th>
-         <th>关注着姓名</th>
          <th>组长</th>
          <th>队名</th>
          <th>票数</th>
@@ -52,7 +51,6 @@ module.exports = {
          <tbody>
          <tr>
          <td><img src='<%= data.projects[i].Userpic%>' style="width: 100px; height: 100px"></td>
-         <td><%= data.projects[i].identifyUser%></td>
          <td><%= data.projects[i].capital%></td>
          <td><%= data.projects[i].username%></td>
          <td><%= data.projects[i].PV%></td>
@@ -662,6 +660,14 @@ module.exports = {
                        </div>
 
                        <div class="form-group">
+                       <label for="lastname" class="col-sm-2 control-label">status</label>
+                       <div class="col-sm-10">
+                       <input type="text" class="form-control" name="status" id="lastname" placeholder="date">
+                       </div>
+                       </div>
+
+
+                       <div class="form-group">
                        <label for="lastname" class="col-sm-2 control-label">Pic</label>
                        <div class="col-sm-10">
                        <input type="text" class="form-control" name="Pic" id="lastname" placeholder="Pic">
@@ -1058,16 +1064,21 @@ module.exports = {
                               url: '/Getcode',
                               type: 'get',
                               success: function(data) {
-                              if(data.code == null) {
+                              if(data.code == null || data.code== '/list') {
                               poll()
                               }else {
                               myCode = data.code
-
+                              alert(myCode);
                               url = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=wxd58fb049ed02ac45&secret=4b8fbe4c34f99bce3af9a0c5911a5bee&code='+myCode+'&grant_type=authorization_code'
 
-                              getopenid()
+                              getopenid(function(data) {
+                                if(data){
+                                location.href="http://martinbo.s1.natapp.cc/WebPage"
+                                }
 
-                              location.href="http://martinbo.s1.natapp.cc/WebPage"
+                              })
+
+
                               }
                               }
                               })
@@ -1075,17 +1086,19 @@ module.exports = {
                               }
                               poll()
 
-                              function getopenid() {
+                              function getopenid(callback) {
+
                               $.ajax({
                               url: '/getopen',
                               type: 'get',
-
                               success: function(data) {
-                              alert(data.code);
-
+                               alert(data.code);
+                               callback(data.code);
                               },
 
                               })
+
+
                               }
 
 
@@ -1134,10 +1147,11 @@ module.exports = {
 
                               </head>
                               <body>
+                              <p>选择大赛的名称,进行文件的上传</p>
                               <form>
                               <select id="select_id">
                               <option value="58350c3f48cac10e08715912">app</option>
-                              <option value="58abcf2c0704280311daec12">微信</option>
+                              <option value="58c665c8ed4d7be94fb9f87b">微信</option>
                               </select>
                               <input type="hidden" id="myOpenid" value="<%= openid%>">
                               <input type="button" value="下一步" onclick="postProfile()">
@@ -1170,6 +1184,412 @@ module.exports = {
                               </body>
                               </html>
                               */
-                            })
+                            }),
+                            tpl22 : heredoc(function() {
+                             /*
+                              <!DOCTYPE html>
+                              <html>
+                              <head>
+                              <title>页面</title>
+                              <meta name = "viewport" content = "initial-scale=1, maximum-scale
+                              =1 , minimum-scale=1">
+                              <meta name="viewport" content="width=device-width, initial-scale=1">
+                              <link href="/stylesheets/bootstrap.min.css" rel="stylesheet" media="screen">
+                              <link href="  //res.wx.qq.com/open/libs/weui/0.4.2/weui.css" rel="stylesheet" media="screen">
+
+                              <script src="/javascripts/jquery-2.1.1.min.js" type="text/javascript"></script>
+                              <script src="/javascripts/bootstrap.min.js" type="text/javascript"></script>
+                              <script src="/javascript/bootstrap.js" type="text/javascript"></script>
+                              </head>
+                              <body>
+                              <span class="label label-info"><%= title%></span>
+                              <br />
+                              <span class="label label-info"><%= url%></span>
+                              <script src="http://zeptojs.com/zepto-docs.min.js"></script>
+                              </body>
+                              </html>
+                              */
+                            }),
+
+                          tpl23: heredoc(function() {
+                           /*
+                            <!DOCTYPE HTML>
+                            <html>
+                            <head>
+                            <title>赛事</title>
+                            <!-- Custom Theme files -->
+                            <meta name="viewport" content="width=device-width, initial-scale=1">
+                            <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+                            <meta name="keywords" content="赛事" />
+                            <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+                            <script src="js/jquery-1.11.1.min.js"></script>
+                            <!-- Custom Theme files -->
+                            <link href="/showStyle/css/style.css" rel='stylesheet' type='text/css' />
+                            <script type="text/javascript" src="/showStyle/js/Chart.js"></script>
+                            <!-- Google Fonts -->
+                            <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900' rel='stylesheet' type='text/css'>
+                            <!---tage-script---->
+                            <!-- start price_bar  -->
+                            <link href="/showStyle/css/jquery.nouislider.css" rel="stylesheet">
+                            <script src="/showStyle/js/jquery.nouislider.js"></script>
+                            <link rel="stylesheet" type="text/css" href="/showStyle/css/fd-slider.css">
+                            <script type="text/javascript" src="/showStyle/js/fd-slider.js"></script>
+
+                            <script src="/showStyle/js/easyResponsiveTabs.js" type="text/javascript"></script>
+
+                            <!----Calender -------->
+                            <link rel="stylesheet" href="/showStyle/css/clndr.css" type="text/css" />
+
+                            <!----End Calender -------->
+                            </head>
+                            <body>
+                            <%for(var i = 0; i < len; i++ ) {%>
+
+                            <div class="twitter_widget_1">
+                            <div class="twit_1_banner">
+                            <div class="twit_1_img"><a href="#"><img style="width: 320px; height: 193px" src="<%= data[i].pic%>" alt="" /></a></div>
+                            </div>
+                            <ul class="twit_nav">
+                            <li><a href="#" class="twit_1"><p><span>已报名</span><br><%= data[i].projects.length%> &nbsp 组</p></a></li>
+                            <li><a href="#" class="twit_2"><p><span>比赛名</span><br> <%= data[i].name%></p></a></li>
+                            <li><a href="#" class="twit_3"><p><span>比赛地点</span><br> <%= data[i].place%></p></a></li>
+                            </ul>
+                            <div class="latest_tweets">
+
+                             <br />
+                            <h3>报名状态:
+
+                            <%if(data[i].status2 === "true") {%>
+
+                            <a style="text-decoration: none;" href = "/information/<%= data[i]._id%>">
+                            <input class="blue red but_1" type="button" value="点击报名">
+                            </a>
+                            <%}else{%>
+                            报名已经截止
+                            <%}%>
+                            </h3>
+                            </div>
+                            <br />
+                            <ul class="twit_nav">
+                            <li><a href = "/movie/<%= data[i]._id%>" class="twit_1"><input class="blue but_1" type="button" value="参赛作品"></a></li>
+
+                            <li><button class="blue but_1" id="<%= data[i]._id%>" onclick="rank(this.id)">查看排名</button></li>
+                            </ul>
+                            </div>
+
+
+
+                            </body>
+                            <script src="/javascripts/jquery-2.1.1.min.js" type="text/javascript"></script>
+
+                            <script>
+                                function rank(_id) {
+
+                                var url = '/rank/'+_id
+                                var url2 = "/progress/"+_id
+
+                                    $.ajax({
+                                    url: url,
+                                    type: 'get',
+                                    success: function(data) {
+
+                                         if(data.status1 == "false") {
+                                            alert("排名还未公布");
+                                         }else{
+                                         window.location.href = url2
+                                         }
+                                      }
+
+                                      })
+
+                                   }
+
+                            </script>
+                            <%}%>
+                            </html>
+
+                            */
+                          }),
+
+
+                          tpl24: heredoc(function() {
+                       /*
+                        <!DOCTYPE HTML>
+                        <html>
+                        <head>
+                        <title>赛事</title>
+                        <!-- Custom Theme files -->
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+                        <meta name="keywords" content="赛事" />
+                        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+                        <script src="js/jquery-1.11.1.min.js"></script>
+                        <!-- Custom Theme files -->
+                        <link href="/showStyle/css/style.css" rel='stylesheet' type='text/css' />
+                        <script type="text/javascript" src="/showStyle/js/Chart.js"></script>
+                        <!-- Google Fonts -->
+                        <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900' rel='stylesheet' type='text/css'>
+                        <!---tage-script---->
+                        <!-- start price_bar  -->
+                        <link href="/showStyle/css/jquery.nouislider.css" rel="stylesheet">
+                        <script src="/showStyle/js/jquery.nouislider.js"></script>
+                        <link rel="stylesheet" type="text/css" href="/showStyle/css/fd-slider.css">
+                        <script type="text/javascript" src="/showStyle/js/fd-slider.js"></script>
+
+                        <script src="/showStyle/js/easyResponsiveTabs.js" type="text/javascript"></script>
+
+                        <!----Calender -------->
+                        <link rel="stylesheet" href="/showStyle/css/clndr.css" type="text/css" />
+
+                        <!----End Calender -------->
+                        </head>
+                        <body>
+                        <%for(var i=0;i<len ;i++){%>
+
+                        <div class="twitter_widget_1">
+                        <div class="twit_1_banner">
+                        <div class="twit_1_img"><a href="#"><img src='<%= data.projects[i].Userpic%>' style="width: 100px; height: 100px" alt="" /></a></div>
+                        </div>
+                        <ul class="twit_nav">
+                        <li><a href="#" class="twit_1"><p><span>队名</span><br><%= data.projects[i].username%></p></a></li>
+                        <li><a href="#" class="twit_2"><p><span>组长</span><br><%= data.projects[i].capital%></p></a></li>
+                        <li><a href="#" class="twit_3"><p><span>票数</span><br><%= data.projects[i].PV%></p></a></li>
+                        </ul>
+                        <div class="latest_tweets">
+                        <h3>项目简介: </h3>
+                        <h3> &nbsp &nbsp<%= data.projects[i].comment%></h3>
+                        </div>
+                        <ul class="twit_nav">
+                        <li>
+
+
+                        <form method = 'post' action = '/vote'>
+
+                        <p>
+                        <button type="submit"class="blue but_1" id ="<%= data.projects[i].lab%>" name ="<%= data.projects[i].priveteId%>" onclick = "vote(this.id,this.name%>)">投票
+                        </button>
+                        </p>
+
+                        </form>
+
+                        </li>
+
+                        <li><a href = "/shows/<%= data.projects[i].lab%>/<%= data.projects[i].priveteId%>" class="twit_3"><input class="blue but_1" type="button" value="详情"></a></li>
+                        </ul>
+                        </div>
+
+                        <script src="/javascripts/jquery-2.1.1.min.js" type="text/javascript"></script>
+
+                        <script type="text/javascript">
+
+                        function vote(userCheck , userId) {
+
+                        var getVote = <%= vote%>
+
+
+
+                        var data = {"userId":userId, "userCheck":userCheck}
+                        if(getVote == 1) {
+                        $.ajax({
+                        url: '/vote',
+                        type: 'post',
+                        data: data,
+                        success: function(data) {
+
+                        alert("投票成功");
+
+
+
+                        },
+                        error: function(data) {
+                        alert(data)
+                        }
+                        })
+                        }else{
+                        alert("投票已使用");
+
+                        }
+                        }
+                        </script>
+                        <%}%>
+
+                        </body>
+                        </html>
+
+                        */
+                      }),
+                        tpl25: heredoc(function() {
+                        /*
+                         <!DOCTYPE HTML>
+                         <html>
+                         <head>
+                         <title>赛事</title>
+                         <!-- Custom Theme files -->
+                         <meta name="viewport" content="width=device-width, initial-scale=1">
+                         <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+                         <meta name="keywords" content="赛事" />
+                         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+                         <script src="js/jquery-1.11.1.min.js"></script>
+                         <!-- Custom Theme files -->
+                         <link href="/showStyle/css/style.css" rel='stylesheet' type='text/css' />
+                         <script type="text/javascript" src="/showStyle/js/Chart.js"></script>
+                         <!-- Google Fonts -->
+                         <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900' rel='stylesheet' type='text/css'>
+                         <!---tage-script---->
+                         <!-- start price_bar  -->
+                         <link href="/showStyle/css/jquery.nouislider.css" rel="stylesheet">
+                         <script src="/showStyle/js/jquery.nouislider.js"></script>
+                         <link rel="stylesheet" type="text/css" href="/showStyle/css/fd-slider.css">
+                         <script type="text/javascript" src="/showStyle/js/fd-slider.js"></script>
+
+                         <script src="/showStyle/js/easyResponsiveTabs.js" type="text/javascript"></script>
+
+                         <!----Calender -------->
+                         <link rel="stylesheet" href="/showStyle/css/clndr.css" type="text/css" />
+
+                         <!----End Calender -------->
+                         </head>
+                         <body>
+                         <%for(var i = 0 ; i < len; i++) {%>
+
+                         <div class="twitter_widget_1">
+                         <div class="twit_1_banner">
+                         <div class="twit_1_img"><a href="#"><img style="width:140px; height: 140px" src = "<%= data[i].Userpic%>" alt="" /></a></div>
+                         </div>
+                         <ul class="twit_nav">
+                         <li><a href="#" class="twit_1"><p><span>名次</span><br> 第<%= i+1%>名</p></a></li>
+                         <li><a href="#" class="twit_2"><p><span>队名</span><br><%= data[i].username%></p></a></li>
+                         <li><a href="#" class="twit_3"><p><span>票数</span><br><%= data[i].PV%></p></a></li>
+                         </ul>
+
+
+                         </div>
+                         <%}%>
+
+                         </body>
+                         </html>
+
+                         */
+                       }),
+                      tpl26 : heredoc(function() {
+                       /*
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                        <title>页面</title>
+                        <meta name = "viewport" content = "initial-scale=1, maximum-scale
+                        =1 , minimum-scale=1">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <link href="/stylesheets/bootstrap.min.css" rel="stylesheet" media="screen">
+                        <link href="  //res.wx.qq.com/open/libs/weui/0.4.2/weui.css" rel="stylesheet" media="screen">
+
+                        <script src="/javascripts/jquery-2.1.1.min.js" type="text/javascript"></script>
+                        <script src="/javascripts/bootstrap.min.js" type="text/javascript"></script>
+                        <script src="/javascript/bootstrap.js" type="text/javascript"></script>
+                        </head>
+                        <body>
+
+                        <form method = 'post' action = '/status3' >
+                        <div class="panel panel-info">
+                        <div class="panel-heading">
+                        <h3 class="panel-title">状态修改</h3>
+                        </div>
+
+                        <div class="panel-body">
+                        <p>projectID: </p><input type="text" name="projectID"  class="form-control" id="lastname"
+                        </div>
+
+                        <div class="panel-body">
+                        <p>status: </p><input type="text" name="status"  class="form-control" id="lastname"
+                        </div>
+
+                        </div>
+                        <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="weui_btn weui_btn_primary">提交</button>
+                        </div>
+                        </form>
+
+
+                        <script src="http://zeptojs.com/zepto-docs.min.js"></script>
+                        </body>
+                        </html>
+                        */
+                      }),
+                 tpl27: heredoc(function () {
+                 /*
+                 <!DOCTYPE HTML>
+                  <html>
+                  <head>
+                  <title>报名</title>
+                   <!-- Custom Theme files -->
+                  <meta name="viewport" content="width=device-width, initial-scale=1">
+                      <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+                  <meta name="keywords" content="Flatastic Mega Mobile UI Kit App Responsive web template, Bootstrap Web Templates, Flat Web Templates, AndriodCompatible web template, Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola webdesign" />
+                       <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+                      <script src="/showStyle/js/jquery-1.11.1.min.js"></script>
+                       <!-- Custom Theme files -->
+                      <link href="/showStyle/css/style.css" rel='stylesheet' type='text/css' />
+                      <script type="text/javascript" src="/showStyle/js/Chart.js"></script>
+                       <!-- Google Fonts -->
+                      <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900' rel='stylesheet' type='text/css'>
+                      <!---tage-script---->
+                   <!-- start price_bar  -->
+                  <link href="/showStyle/css/jquery.nouislider.css" rel="stylesheet">
+                      <script src="/showStyle/js/jquery.nouislider.js"></script>
+                      <link rel="stylesheet" type="text/css" href="/showStyle/css/fd-slider.css">
+                      <script type="text/javascript" src="/showStyle/js/fd-slider.js"></script>
+
+                      <script src="/showStyle/js/easyResponsiveTabs.js" type="text/javascript"></script>
+
+                       <!----Calender -------->
+                      <link rel="stylesheet" href="/showStyle/css/clndr.css" type="text/css" />
+
+                       <!----End Calender -------->
+                      </head>
+                      <body>
+                  <div class="login_1 login_2">
+                  <ul class="various-grid accout-login2 login_3">
+                  <form>
+                  <li>
+                  <input type="text" class="text" value="Username" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Username';}"><a href="#" class=" icon user"></a>
+                  </li>
+
+                  <li>
+                  <input type="password" value="Password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}"><a href="#" class=" icon lock"></a>
+                  </li>
+
+                  <li>
+                  <input type="password" value="Password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}"><a href="#" class=" icon lock"></a>
+                  </li>
+
+                  <li>
+                  <input type="password" value="Password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}"><a href="#" class=" icon lock"></a>
+                  </li>
+
+
+                  <li>
+                  <input type="password" value="Password" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'Password';}"><a href="#" class=" icon lock"></a>
+                  </li>
+
+
+
+                  <textarea value="Message" placeholder="项目简介" rows="3"></textarea>
+
+
+                  <div class="but_4">
+                  <input type="submit" onclick="myFunction()" value="Login">
+                  </div>
+                  </form>
+                  </ul>
+
+                  </div>
+
+
+                      </body>
+                      </html>
+
+                      */
+                 })
+
 }
 

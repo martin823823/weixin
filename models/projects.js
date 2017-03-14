@@ -506,6 +506,9 @@ weiUser.findId = function(_id, userCheck  ,openID ,callback) {
                                 //        })
                                 //    }
                                 //})
+                                console.log("usrcheck"+userCheck);
+                                console.log("_id"+_id);
+                                console.log("openid"+openID)
                                 collection.update({"projectID":userCheck , projects:{$elemMatch:{priveteId:_id}}}, {$inc:{"projects.$.PV":1}},{w:0},function(err) {
                                     if(err) {
                                         return callback(err);
@@ -745,8 +748,19 @@ weiUser.findYou = function(checkOpenid, relId ,profile ,downloadUrl ,callback) {
                 if(err) {
                     return callback(err);
                 }
-               if(docs.projects.length < 1) {
-                   console.log("11111");
+               //if(docs.projects.length < 1) {
+               //    console.log("11111");
+               //    collection.update(query, {$push:{"projects": infor}}, true , function(err) {
+               //        mongo.close();
+               //        if(err) {
+               //            return callback(err);
+               //        }
+               //        callback(null);
+               //    })
+               //}
+               //else
+               if(docs.projects.length === 0 || docs.projects == null) {
+                   console.log("null");
                    collection.update(query, {$push:{"projects": infor}}, true , function(err) {
                        mongo.close();
                        if(err) {
@@ -754,7 +768,8 @@ weiUser.findYou = function(checkOpenid, relId ,profile ,downloadUrl ,callback) {
                        }
                        callback(null);
                    })
-               }else {
+               }
+               else {
 
                    for(var i = 0; i < docs.projects.length; i++) {
                        console.log(docs.projects[i].newname);
@@ -1001,7 +1016,8 @@ weiUser.findRank = function(projectID ,callback) {
                             return callback(err);
                         }
                         //console.log(docs.projects)
-                        callback(null ,docs.projects, docs.joins);
+                            callback(null ,docs.projects, docs.joins);
+
                     })
                 }else{
                     callback(null)
@@ -1064,6 +1080,31 @@ weiUser.updateStatus = function(data, callback) {
     })
 }
 
+weiUser.updateStatus2 = function(data, callback) {
+
+    var relId = ObjectID(data.projectID);
+
+    mongo.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+        db.collection('newTable', function(err, collection) {
+            if(err, collection) {
+                if(err) {
+                    mongo.close();
+                    return callback(err);
+                }
+                collection.update({"_id":relId},{$set:{"status": data.status}}, function(err) {
+                    mongo.close();
+                    if(err) {
+                        return callback(err);
+                    }
+                    callback(null);
+                })
+            }
+        })
+    })
+}
 
 weiUser.saveSuccess = function(data, callback) {
 
@@ -1171,6 +1212,33 @@ weiUser.findVotes = function(openID , callback) {
                     return callback(err);
                 }
                 callback(null, docs.vote);
+            })
+        })
+    })
+}
+
+
+weiUser.rank = function(project , callback) {
+    console.log(project)
+    mongo.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+        db.collection('newTable', function(err, collection) {
+            if(err) {
+                mongo.close();
+                return callback(err);
+            }
+            var query = {}
+            if(project) {
+                query.projectID = project
+            }
+            collection.findOne(query, function(err, docs) {
+                mongo.close();
+                if(err) {
+                    return callback(err);
+                }
+                callback(null, docs);
             })
         })
     })
