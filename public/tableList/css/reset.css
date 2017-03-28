@@ -1,0 +1,44 @@
+@charset "utf-8";
+/*-----reset-------*/
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td ,a{ margin:0; padding:0;border: 0;}
+body { background:#fff; color:#555; font-size:12px; font-family: "microsoft yahei","SimSun","宋体","Arial Narrow"; -webkit-text-size-adjust:100%;}
+td,th,caption { font-size:12px;text-align:left;}
+h1, h2, h3, h4, h5, h6 { font-weight:normal; font-size:100%; }
+address, caption, cite, code, dfn, em, strong, th, var { font-style:normal; font-weight:normal;}
+a{color:#2d374b;text-decoration:none;}
+a:hover{text-decoration:none;}
+select,input,img,select,img,label { border:none; vertical-align:middle;}
+ol,ul,li { list-style:none; }
+input, textarea, select, button { font:14px Verdana,Helvetica,Arial,sans-serif; }
+table { border-collapse:collapse;border-spacing:0; }
+html {overflow-y: scroll;font-size:12px;-webkit-text-size-adjust: 100%;-ms-text-size-adjust: 100%;}
+p{word-wrap:break-word}
+q:before,q:after {content:'';}
+iframe{display:block;}
+sub, sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+sup {top: -0.5em;}
+sub {bottom: -0.25em;}
+/* css common */
+.clearfix:before,
+.clearfix:after {
+    content:"";
+    display:table;
+}
+.clearfix:after { clear:both;}
+/* For IE 6/7 (trigger hasLayout) */
+.clearfix {
+    zoom:1;
+}
+.clear{clear:both;}
+.fl { float:left;}
+.fr { float:right;}
+input:focus,a:focus {
+    outline: none;
+}
+a {blr:expression(this.onFocus=this.close());}
+a {blr:expression(this.onFocus=this.blur());}

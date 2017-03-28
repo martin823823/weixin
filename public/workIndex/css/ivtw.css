@@ -1,0 +1,135 @@
+*{
+    font-family: "Helvetica Neue",Helvetica,Arial,"Lantinghei SC","Hiragino Sans GB",STHeiti,"Microsoft Yahei","Microsoft Sans Serif",sans-serif;
+    box-sizing: border-box;
+}
+body,html,header,section,div,p,h1,h2,h3,h4,h5,h6,img,span{
+    margin:0;
+    padding:0;
+}
+html{
+    font-size:10px;
+}
+body{
+    background-color:#f4f4f4 ;
+    padding-bottom:60px;
+}
+.clearfix{
+    display:block;
+    content:'';
+    clear:both;
+}
+/*header*/
+header{
+    width:100%;
+    background:url(/workIndex/images/titlebg.jpg) no-repeat center;
+    background-size:100% 100%;
+}
+.title {
+    padding:49px 30px 73px 30px;
+}
+.title img,.title span{
+    float:left;
+
+}
+.title img{
+    width:45%;
+}
+.title span{
+    width:40%;
+    background:url(/workIndex/images/titleframe.png) no-repeat center;
+    background-size:100% 100%;
+    font-size: 1.3rem;
+    color:#fff;
+    margin-left:13px;
+    margin-top:12px;
+    padding:4px 4px 4px 15px;
+}
+/*section*/
+section{
+    background-color:#fff;
+    margin:0 11px;
+}
+section .list{
+    float:left;
+
+}
+section .go{
+    float:right;
+    padding:8px 15px;
+    margin:48px 12px 0 0 ;
+    background-color:#0368c8;
+    border-radius:4px;
+}
+section .go >a{
+    color:#fff;
+    font-size:1.5rem;
+    text-decoration: none;
+}
+section .list{
+    width:67%;
+    margin: 20px 0 25px 15px;
+}
+section .list>img,section .list .right{
+    float:left;
+
+}
+section .list>img{
+    width:46%;
+    margin-right:15px;
+    border-radius: 50%;
+}
+section .list .right>h1{
+    font-size:1.8rem;
+    margin-top:30px;
+    font-weight: normal;
+}
+section .list .right small{
+    color:#b0afaf;
+    font-size:1.2rem;
+}
+section .content{
+    padding:0 21px;
+}
+section .content p{
+    text-align: justify;
+    line-height:21px;
+    font-size: 1.3rem;
+}
+section .content .link{
+    margin-top:12px;
+}
+section .content .link>a{
+    display:block;
+    text-decoration:none;
+    font-size: 1.3rem;
+    color:#0368c8;
+    padding:20px 0;
+    border-top:1px solid #ccc;
+}
+section.maTop{
+    margin-top:16px;
+}
+@media screen and (max-width: 320px){
+    .title span{
+        width:47%;
+    }
+    section .list>img{
+        width:37%;
+    }
+    section .list .right>h1{
+        font-size: 1.6rem;
+        margin-top:25px;
+    }
+    section .list .right small{
+        font-size:1.2rem;
+    }
+    section .go{
+        padding: 6px 10px;
+        margin:46px 12px 0 0 ;
+    }
+}
+@media screen and (max-width: 360px){
+    section .list>img{
+        width:45%;
+    }
+}

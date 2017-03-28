@@ -8,9 +8,20 @@ var fs = require('fs');
 var path = require('path');
 var weiUser = require('../models/projects');
 var User = require('../models/infor');
+var request = require('request');
+
+var mongo = require('./mongodb');
 
 
-var uesrOpenID
+
+//app.use(session({
+//    store: sessionStore.create(),
+//    collection: 'sessions',
+//    connection: mongo,
+//    expires: 30 * 60 * 1000,
+//    model: 'KoaSession'
+//}));
+
 
 
 //var Koa=require("koa");
@@ -67,9 +78,11 @@ exports.reply = function* (next){
     var userId  = users.user_info_list[0].nickname
     var userCheck  = users.user_info_list[0].openid
 
+    this.session.openid = userCheck
     //console.log(username);
 
-    console.log("openId "+userCheck)
+
+    console.log("this.session.openid  "+this.session.openid )
 
     if (message.MsgType === 'event') {
         if (message.Event === 'subscribe') {
@@ -93,16 +106,16 @@ exports.reply = function* (next){
             var userId  = users.user_info_list[0].nickname
             var userCheck  = users.user_info_list[0].openid
 
-            uesrOpenID = userCheck
+           // uesrOpenID = userCheck
             //console.log(username);
 
             console.log(userId)
-            this.session.user = userId
+          //   this.session.user = userId
 
-             User.weixinUser.name = userId
+            // User.weixinUser.name = userId
 
 
-            User.weixinUser.userCheck = uesrOpenID
+           // User.weixinUser.userCheck = uesrOpenID
 
 
             //weiUser.checkView(userId, function(err , docs) {
@@ -117,14 +130,14 @@ exports.reply = function* (next){
             //})
 
 
-            weiUser.saveId(userId, pic , userCheck ,function(err, total) {
-                if(err) {
-                    console.log(err)
-                }
-                else {
-                    console.log(total)
-                }
-            });
+            //weiUser.saveId(userId, pic , userCheck ,function(err, total) {
+            //    if(err) {
+            //        console.log(err)
+            //    }
+            //    else {
+            //        console.log(total)
+            //    }
+            //});
 
                 // userInfor.pic = users.user_info_list[0].headimgurl;
 
@@ -132,7 +145,8 @@ exports.reply = function* (next){
             if (message.EventKey) {
                 console.log('扫二维码进来：' + message.EventKey + ' ' + message.Ticket)
             }
-            this.body = '你的注册的激活码是'+uesrOpenID;
+            this.body = '欢迎关注去大赛公众号,请通过以下地址设置你所在的学校' +
+                         'http://martinbo.s1.natapp.cc/schools';
         }else if(message.Event === 'unsubscribe'){
             console.log('无情取关')
             User.weixinUser.name = null

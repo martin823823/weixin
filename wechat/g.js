@@ -43,9 +43,9 @@ module.exports = {
                 console.log("node" + content)
                 var message = util.formatMessage(content.xml)
                 console.log(message.FromUserName)
-                weiUsername.weixinUser.openID = message.FromUserName
+                //weiUsername.weixinUser.openID = message.FromUserName
 
-                console.log("open "+ weiUsername.weixinUser.openID)
+                //console.log("open "+ weiUsername.weixinUser.openID)
 
                 this.weixin = message
                 yield handler.call(this, next)

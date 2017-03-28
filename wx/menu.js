@@ -32,17 +32,22 @@ module.exports = {
         {
         'name': '参赛作品',
         'sub_button':[
-            {
-                 'type':'view',
+          {
+                'type':'view',
                 'name': '赛事列表',
+                'url': 'http://martinbo.s1.natapp.cc/AllList'
+            },
+            {
+                'type':'view',
+                'name': '发起活动',
                 'url': 'http://martinbo.s1.natapp.cc/list'
-}
+            }
         ]},{     'name':'我',
            'sub_button':[{
                //'type':'pic_weixin',
                //'name':'微信发图',
                //'key':'pic_weixin'
-               'name': '审核',
+               'name': '院校管理员申请',
                'type':'view',
                'url': 'http://martinbo.s1.natapp.cc/premission'
             },
@@ -50,17 +55,25 @@ module.exports = {
                    //'type':'pic_weixin',
                    //'name':'微信发图',
                    //'key':'pic_weixin'
-                   'name': '成功实例',
+                   'name': '我的赛事',
                    'type':'view',
-                   'url': 'http://martinbo.s1.natapp.cc/premission'
+                   'url': 'http://martinbo.s1.natapp.cc/myContest'
 
                },{
                    //'type':'pic_weixin',
                    //'name':'微信发图',
                    //'key':'pic_weixin'
-                   'name': '导入赛事',
+                   'name': '赛事信息',
                    'type':'view',
-                   'url': 'http://martinbo.s1.natapp.cc/premission'
+                   'url': 'http://martinbo.s1.natapp.cc/contestInform'
+
+               },{
+                   //'type':'pic_weixin',
+                   //'name':'微信发图',
+                   //'key':'pic_weixin'
+                   'name': '赛事管理',
+                   'type':'view',
+                   'url': 'http://martinbo.s1.natapp.cc/Mancontest'
 
                }
            // , {

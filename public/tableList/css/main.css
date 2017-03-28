@@ -1,0 +1,1221 @@
+html {
+    font-size: 10px;
+}
+
+img {
+    max-width: 100%;
+}
+
+body, .personCenter-btn {
+    max-width: 768px;
+    margin: 0 auto;
+}
+
+/*头部*/
+.index-top {
+    background-color: #231815;
+}
+
+.index-top-left {
+    position: relative;
+    float: left;
+    width: 24px;
+    padding: 18px 20px;
+}
+
+.logo {
+    display: table;
+    padding: 8px 0;
+    margin: 0 auto;
+    position: relative;
+    right: 30px;
+}
+
+.logo img {
+    width: 45px;
+}
+
+.side-nav {
+    width: 135px;
+    display: none;
+    background-color: rgba(34,24,21,0.85);
+    position: absolute;
+    top: 57px;
+    left: 0;
+    z-index: 10;
+}
+
+.side-nav li:not(:last-child) {
+    border-bottom: 1px solid #fff;
+}
+
+.side-nav a {
+    color: #fff;
+    display: block;
+    width: 100%;
+    padding: 20px 0;
+    text-align: center;
+    font: 100 1.2rem/20px "microsoft yahei";
+}
+
+.no-login {
+    display: block;
+}
+
+.have-login {
+    position: relative;
+    z-index: 10;
+}
+
+/*首页*/
+.index-item {
+    display: block;
+    padding: 24px 3%;
+    border-top: 1px solid #cdd0de;
+}
+
+.index-item:first-child {
+    border-top: 0;
+}
+
+.item-icon {
+    height: 1.6rem;
+    float: left;
+    margin-right: 10px;
+}
+
+.index-item p {
+    line-height: 1.6rem;
+    display: inline-block;
+    font-size: 1.7rem;
+}
+
+.arrow-icon {
+    float: right;
+    height: 1.6rem;
+}
+
+.signUp p {
+    color: #eed48a;
+}
+/*热门信息列表*/
+.hot-list p {
+    text-indent: 10px;
+    width: 270px;
+    height: 19px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.hot-list .arrow-icon {
+    margin-right: 10px;
+}
+
+.more {
+    text-decoration: underline;
+    width: 100%;
+    display: block;
+    text-align: center;
+    font-size: 1.6rem;
+    color: #727171;
+}
+
+/*热门信息详情*/
+.hot-massage-detail {
+    padding-top: 20px;
+    /*color: #fff;*/
+}
+
+.hot-massage-detail .game-checkbox {
+    margin-top: 10px;
+}
+
+.h-m-d-back {
+    /*background: url(../images/sign-ok.jpg) no-repeat bottom;*/
+    background-size: 100% 100%;
+    width: 100%;
+    height: 100%;
+    max-width: 768px;
+    position: fixed;
+    top: 0;
+    z-index: -1;
+}
+
+.h-m-title {
+    padding: 0 5%;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.4rem;
+    color: #eed58c;
+}
+
+.h-m-content {
+    padding: 0 6%;
+}
+
+.h-m-content img {
+    width: 100%;
+}
+
+.massage-btn {
+    margin-top: 20px;
+    padding: 0 6%;
+    margin-bottom: 80px;
+}
+
+.massage-btn li {
+    width: 50%;
+    float: left;
+}
+
+.massage-btn a {
+    width: 100%;
+    display: inline-block;
+    text-indent: -40px;
+    font-size: 1.6rem;
+    text-align: center;
+    background-image: url(../images/arrow.png);
+    background-repeat: no-repeat;
+}
+
+.prev-article {
+    color: #eed48a;
+    background-position: 70% 4px;
+}
+
+.next-article {
+    color: #efefef;
+    background-position: 70% -14px;
+}
+
+.back-top {
+    margin-top: 200px;
+    width: 100%;
+    text-indent: -45px;
+    font-size: 1.6rem;
+    text-align: center;
+    display: inline-block;
+    background-image: url(../images/arrow.png);
+    background-repeat: no-repeat;
+    color: #eed48a;
+    background-position: 60% 8px;
+}
+/*注册*/
+.register {
+    width: 80%;
+    height: 100px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.btn {
+    display: inline-block;
+    width: 100%;
+    padding: 10px 0;
+    font: 100 1.4rem "microsoft yahei";
+    color: #fff;
+    text-align: center;
+}
+
+.weixin-register {
+    background-color: #595757;
+    text-decoration: none;
+}
+
+.form {
+    margin-top: 20px;
+}
+
+.form input {
+    width: 90%;
+    margin: 6px 0;
+    padding: 8px 5%;
+    border-radius: 5px;
+    font: 100 1rem "microsoft yahei";
+    border: 1px solid #dcdddd;
+    letter-spacing: 0.2rem;
+    color: #595757;
+}
+
+.btn-register {
+    background-color: #b7954c;
+    text-decoration: none;
+}
+
+.have-account {
+    font: 100 1rem "microsoft yahei";
+    color: #595757;
+    margin-top: 4px;
+}
+
+.have-account a {
+    color: #b7954c;
+    font: 100 1rem "microsoft yahei";
+}
+
+.have-account .find {
+    float: right;
+}
+
+.checkbox {
+    font-size: 1rem;
+    padding-left: 20px;
+    margin: 10px 0;
+    line-height: 1.1rem;
+    background-image: url(../images/check10.png);
+    background-repeat: no-repeat;
+    color: #b7954c;
+}
+
+.checkbox-haveSel {
+    background-position: left -63px;
+}
+
+.forget-password {
+    text-align: right;
+    margin-top: 10px;
+    margin-bottom: 4px;
+}
+
+.forget-password a {
+    font-size: 1rem;
+    color: #595757;
+    text-decoration: none;
+}
+
+/*未开考提醒*/
+.no-exam {
+    text-align: center;
+    padding: 0 10%;
+    margin-top: 40px;
+}
+
+.no-exam h1 {
+    font-size: 1.6rem;
+    color: #595757;
+    margin-bottom: 30px;
+}
+
+.no-exam h2 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #595757;
+}
+
+.exam-time {
+    padding: 6px 20px;
+    font-size: 1.6rem;
+    background-color: #e9e7e6;
+    margin-bottom: 50px;
+    color: #595757;
+}
+
+.back-index, .go-register {
+    background-color: #b7954c;
+}
+
+.m-top {
+    margin-top: 50px;
+}
+
+/*未注册*/
+.no-register {
+    margin-top: 40px;
+    padding: 0 10%;
+    text-align: center;
+}
+
+.n-r-pic {
+    width: 40%;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+.no-register h2 {
+    font-size: 2.4rem;
+    margin-bottom: 20px;
+}
+
+.no-register p {
+    font-size: 1.6rem;
+    color: #333;
+    line-height: 2.4rem;
+    position: relative;
+    left: 4px;
+}
+
+.no-register h6 {
+    font-size: 1.4rem;
+    color: #595757;
+    line-height: 2.4rem;
+}
+
+.go-register {
+    margin-top: 60px;
+}
+
+/*找回密码*/
+.find-password h2 {
+    text-indent: 20px;
+    margin-top: 20px;
+    color: #666464;
+    font: 100 1.6rem/2rem "microsoft yahei";
+}
+
+.find-password .form {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.find-password .form input {
+    background-color: #e6e6e6;
+    border: 0;
+}
+
+.form p {
+    color: #666;
+    margin-top: 20px;
+    font: 100 1.4rem/1.6rem "microsoft yahei";
+}
+
+.reset {
+    background-color: #bb974d;
+    margin-bottom: 50px;
+    margin-top: 20px;
+    text-decoration: none;
+}
+
+.wrong {
+    color: #ff1500;
+    font: 100 1rem "microsoft yahei";
+    visibility: hidden;
+}
+
+
+/*个人资料*/
+.head-portrait {
+    width: 80px;
+    height: 80px;
+    margin: 20px auto;
+    padding: 2px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    overflow: hidden;
+    position: relative;
+}
+
+.head-portrait > img {
+    width: 95px;
+    height: 95px;
+    max-width: 500px;
+    position: absolute;
+    top: -5px;
+    left: -5px;
+}
+
+.data-cont {
+    width: 90%;
+    padding: 10px 5%;
+    margin-bottom: 20px;
+}
+
+.data-cont h4 {
+    font: 1.6rem "microsoft yahei";
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.input-item {
+    color: #595757;
+    font: 1rem/2.5rem "microsoft yahei";
+    margin-bottom: 10px;
+}
+
+.input-item input {
+    float: right;
+    background-color: #fff;
+    box-shadow: 10px 10px 5px #fff;
+    width: 70%;
+    padding: 6px 3%;
+    border: 1px solid #d3d4d4;
+    margin-top: 1px;
+    font-size: 1rem;
+}
+
+.select-btn {
+    float: right;
+    width: 76%;
+}
+
+.select-btn select {
+    border: 1px solid #dcdddd;
+    color: #999;
+    padding: 4px 2%;
+    width: 49%;
+    font-size: 1rem;
+}
+
+.save-data {
+    width: 90%;
+    margin: 50px auto;
+    display: table;
+    background-color: #b7954c;
+}
+
+.personCenter-btn {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.p-c-btn {
+    width: 90%;
+    margin: 20px auto;
+    display: table;
+    background-color: #ccc;
+}
+/*修改头像*/
+.change-head {
+    padding: 40px 3%;
+}
+
+.upload {
+    display: inline-block;
+    width: 100px;
+    height: 35px;
+    background-color: #b7954c;
+    overflow: hidden;
+    font-size: 14px;
+    color: #fff;
+    text-align: center;
+    line-height: 35px;
+    position: relative;
+}
+
+.upload input[type="file"] {
+    position: absolute;
+    right: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 35px;
+    line-height: 35px;
+    filter: alpha(opacity=0);
+    color: #fff;
+    border: 1px solid #ccc;
+}
+
+.show-pic {
+    padding: 20px 0;
+    margin: 20px 0;
+    border-top: 1px solid #dcdddd;
+    border-bottom: 1px solid #dcdddd;
+}
+
+.show-pic img {
+    width: 100%;
+    min-height: 200px;
+    background-color: #ddddde;
+}
+
+.change-head-btn {
+    width: 200px;
+}
+
+.change-head-btn a {
+    width: 46%;
+    margin: 0 1%;
+    font-size: 1.5rem;
+}
+
+.save-head {
+    background-color: #b7954c;
+    border: 1px solid #b7954c;
+}
+
+.cancel {
+    color: #b7954c;
+    background-color: #fff;
+    border: 1px solid #b7954c;
+}
+/*报名成功*/
+.sign-ok {
+    text-align: center;
+    padding: 100px 10%;
+    color: #fff;
+}
+
+.sign-ok-back {
+    background: url(../images/sign-ok.jpg) no-repeat;
+    background-size: 100% auto;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.success1 {
+    width: 98%;
+    margin-bottom: 20px;
+}
+
+.sign-ok h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+
+.sign-ok p {
+    font-size: 2rem;
+    margin-bottom: 50px;
+}
+
+.success2 {
+    width: 50%;
+}
+
+
+
+/*个人中心*/
+.p-center-top {
+    padding: 20px 10%;
+}
+
+.user-name {
+    float: left;
+    margin: 30px 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 4px solid #ffebae;
+    font-size: 1.8rem;
+}
+
+.person-center .index-item {
+    padding-left: 10%;
+    padding-right: 10%;
+    border: 0;
+}
+/*查询成绩详情*/
+.query-grade .index-item {
+    padding-left: 10%;
+    padding-right: 10%;
+    position: relative;
+}
+
+.query-grade .arrow-icon {
+    display: none;
+}
+
+.index-item pre {
+    position: absolute;
+    top: 20px;
+    right: 20%;
+    line-height: 1.6rem;
+    font-size: 1.2rem;
+    color: #9fa0a0;
+}
+
+.query-grade .index-item p {
+    color: #9fa0a0;
+}
+
+.can-start {
+    background-color: #898989;
+}
+
+.can-start .arrow-icon {
+    display: block;
+    height: 16px;
+    margin-top: 1px;
+}
+
+.query-grade .can-start p, .can-start pre {
+    color: #fff;
+}
+
+.massage-notice-list h1 {
+    border-bottom: 1px solid #cdd0de;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 1.6rem;
+}
+
+.h-m-content .btn-register {
+    margin-top: 60px;
+}
+
+
+/*赛区赛事*/
+.attend-game-back {
+    background: url(../images/gamePic.jpg) no-repeat;
+    background-size: 100% auto;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.game-item {
+    text-align: center;
+    color: #fff;
+    position: absolute;
+    left: 0;
+    top: 20%;
+    width: 80%;
+    padding: 0 10%;
+}
+
+.game-item h3 {
+    font-size: 2.2rem;
+    line-height: 3rem;
+}
+
+.game-item h1 {
+    font-size: 2.8rem;
+    line-height: 3rem;
+    text-indent: 30px;
+}
+
+.game-item h2 {
+    font-size: 2.4rem;
+    line-height: 3rem;
+}
+
+.yellow {
+    color: #ecd085;
+}
+
+.game-checkbox {
+    font-size: 1rem;
+    line-height: 20px;
+    padding-left: 25px;
+    text-align: left;
+    background-image: url(../images/check12.png);
+    background-repeat: no-repeat;
+    color: #fff;
+    margin-top: 100px;
+    margin-bottom: 20px;
+    background-position: left top;
+}
+
+.game-checkbox-haveSel {
+    background-position: left -65px;
+}
+
+@media screen and (max-width:375px) {
+    .game-item {
+        top: 22%;
+    }
+
+    .game-item h3 {
+        font-size: 2rem;
+    }
+
+    .game-item h1 {
+        font-size: 2.6rem;
+    }
+
+    .game-item h2 {
+        font-size: 2.2rem;
+    }
+}
+
+@media screen and (min-width:600px) {
+    .game-item {
+        top: 28%;
+    }
+
+    .game-item h3 {
+        font-size: 3.6rem;
+        line-height: 4.8rem;
+    }
+
+    .game-item h1 {
+        font-size: 4.4rem;
+        line-height: 4.8rem;
+    }
+
+    .game-item h2 {
+        font-size: 4rem;
+        line-height: 4.8rem;
+    }
+
+    .game-checkbox {
+        font-size: 2rem;
+    }
+
+    .game-item .btn-register {
+        font-size: 2.8rem;
+    }
+}
+/*赛事完善资料*/
+.data-back {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background-color: #efefef;
+}
+
+.improve-data-list {
+    padding: 0 4px 40px 4px;
+    margin: 10px 5%;
+    background-color: #fff;
+}
+
+.improve-data-item {
+    border: 1px solid #ccc;
+    padding: 6px 4px;
+    margin-bottom: 6px;
+}
+
+.improve-data-item span {
+    float: left;
+    font-size: 1.3rem;
+    padding: 0;
+}
+
+.improve-data-item input {
+    padding-left: 30px;
+}
+
+.photo {
+    border: 1px solid #fff;
+;
+}
+
+.photo span {
+    position: relative;
+    top: 20px;
+    left: 10px;
+}
+
+.improve-data-item select {
+    width: 20%;
+    margin-left: 30px;
+    color: #999;
+}
+
+.massage-investigate {
+    padding-left: 64px;
+}
+
+.massage-investigate h3 {
+    color: #4c4948;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.massage-investigate p {
+    color: #6e6a69;
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+}
+
+.no-border {
+    border: 0;
+}
+
+.improve-data2, .improve-data3 {
+    margin: 30px 8%;
+    padding: 20px 6px;
+    background-color: #fff;
+}
+
+.improve-cont {
+    padding-top: 30px;
+}
+
+.improve-cont h3, .improve-data3 h3 {
+    font-size: 1.6rem;
+    color: #595757;
+    margin-bottom: 20px;
+}
+
+.improve-cont span, .improve3-item {
+    font-size: 1.4rem;
+    color: #595757;
+    margin-bottom: 10px;
+}
+
+.improve-btn {
+    padding: 0 8%;
+}
+
+.improve-data3 {
+    padding: 20px;
+}
+
+.improve3-radio {
+    float: right;
+    margin-left: 40px;
+}
+/*联系我们*/
+.contacUs-back {
+    background-color: #efefef;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.contact-us-cont, .cooperation-cont {
+    padding: 20px 10%;
+}
+
+.contact-us-pic {
+    margin: 20px 10% 0;
+    position: relative;
+}
+
+.contact-us-pic .two-num {
+    position: absolute;
+    top: 21%;
+    left: 33%;
+    width: 33%;
+}
+
+.contact-us-pic p {
+    width: 100%;
+    position: absolute;
+    bottom: 20%;
+    text-align: center;
+    font-size: 1.4rem;
+    color: #595757;
+}
+/*商务合作*/
+.cooperation-pic {
+    position: relative;
+}
+
+.cooperation-pic .two-num {
+    position: absolute;
+    top: 40.5%;
+    left: 42%;
+    width: 16%;
+}
+/*考试已结束*/
+.exam-end p {
+    color: #b7954c;
+}
+
+.exam-end2 {
+    text-align: center;
+    padding: 100px 0;
+    color: #edcd9e;
+}
+
+.exam-end2 h2 {
+    font-size: 3rem;
+    line-height: 4rem;
+    margin-bottom: 10px;
+}
+
+.exam-end2 p {
+    font-size: 1.6rem;
+    line-height: 2.4rem;
+}
+
+.exam-btn {
+    padding: 50px 30% 0;
+}
+
+.exam-btn a {
+    font-size: 1.4rem;
+}
+/*考试列表*/
+.exam-list {
+    margin: 10px;
+    padding: 20px 0;
+}
+
+.exam-end-time {
+    height: 100px;
+    padding: 20px 10px;
+    background-color: #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.exam-end-time em {
+    font-size: 1.7rem;
+    float: left;
+    position: relative;
+    top: 6px;
+}
+
+.clock div {
+    position: relative;
+    float: left;
+    margin-left: 20px;
+}
+
+.clock div:first-child {
+    margin-left: 0;
+}
+
+.clock span {
+    padding: 10px;
+    border-radius: 100px;
+    color: #fff;
+    font-size: 1.6rem;
+    background-color: #b7954c;
+}
+
+.clock i {
+    position: relative;
+    display: block;
+    bottom: 14px;
+    font-style: normal;
+    font-size: 1rem;
+}
+
+.exam-item {
+    padding: 05%;
+}
+
+.exam-item h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.exam-item .massage-investigate {
+    padding-left: 0;
+}
+
+.exam-item .massage-investigate h3 {
+    font-size: 1.6rem;
+}
+
+.exam-item .massage-investigate p {
+    text-indent: 20px;
+}
+
+.exam-list .next-article {
+    color: #595757;
+    background-image: url(../images/arrow2.png);
+    background-position: 70% 4px;
+}
+/*是否提交*/
+.if-submit {
+    text-align: center;
+    padding: 50px 10%;
+}
+
+.if-submit h2 {
+    font-size: 2rem;
+    margin-bottom: 40px;
+}
+
+.if-submit-btn a {
+    font-size: 2rem;
+    display: inline-block;
+    width: 44%;
+    margin: 0 2%;
+    background-color: #e6e7e7;
+}
+
+.if-submit p {
+    font-size: 1.2rem;
+    margin-top: 20px;
+}
+/*是否确认提交*/
+.confirm-submit {
+    text-align: center;
+}
+/*海选考试确认*/
+.confirm-submit {
+    color: #fff;
+    padding: 60px 10% 0;
+}
+
+.confirm-submit h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.confirm-submit img {
+    margin-bottom: 10px;
+}
+
+.confirm-submit h3 {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+}
+
+.confirm-submit h4 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+}
+
+.confirm-submit h5 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.h-m-content .know-btn {
+    margin-top: 10px;
+}
+
+.input-hirt {
+    color: #ceb06d;
+    width: 76%;
+    float: right;
+}
+
+/*登录*/
+.login-logo {
+    width: 30%;
+    margin: 0 auto;
+    padding: 40px 35%;
+}
+
+.login-form {
+    width: 80%;
+    padding: 10%;
+    height: 244px;
+}
+
+.login-form input {
+    background: url(../images/login-icon.png) no-repeat 10px 0;
+    background-size: 16px;
+    padding: 10px 1% 10px 14%;
+    width: 85%;
+}
+
+.form1 p {
+    color: red;
+    margin: 0;
+    visibility: hidden;
+}
+
+.login-form .input:nth-of-type(2) input {
+    background-position: 10px 50%;
+}
+
+.form1 {
+    margin-bottom: 80px;
+    position: relative;
+}
+
+.form1 input {
+    border: 1px solid transparent;
+    background-color: #fff;
+    display: block;
+    font: 400 14px "microsoft yahei";
+    color: #888;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form1 input:focus {
+    border: 1px solid #fda843;
+}
+
+.form-other {
+    line-height: 36px;
+}
+
+.form-other a {
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.remember-me {
+    float: left;
+    color: #666;
+}
+
+.forgin {
+    float: right;
+    color: #b7954c;
+}
+
+.login-btn {
+    width: 100%;
+    height: 40px;
+    background-color: #b7954c;
+    display: block;
+    text-align: center;
+    color: #fff;
+    font-size: 16px;
+    line-height: 40px;
+    text-decoration: none;
+    font-weight: 900;
+}
+
+.other-login-title {
+    margin-top: 30px;
+    border-top: 1px solid #cccccc;
+}
+
+.other-login-title h3 {
+    margin: 0 auto;
+    font-size: 1.1rem;
+    position: relative;
+    display: table;
+    color: #999;
+    background-color: #fff;
+    font-weight: 100;
+    padding: 0 20px;
+    bottom: 10px;
+}
+
+.login-way {
+    padding: 20px;
+}
+
+.login-way a {
+    display: inline-block;
+    width: 45%;
+    text-decoration: none;
+    text-align: center;
+    color: #999;
+    font-size: 1rem;
+}
+
+.login-way a p {
+    margin-top: 10px;
+}
+
+.login-way img {
+    width: 40%;
+}
+
+
+.exam-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 0 5%;
+    width: 90%;
+    padding-bottom: 30px;
+    background-color: #fff;
+}
+
+.already-answer {
+    margin-top: 30px;
+    text-align: center;
+    width: 100%;
+    float: left;
+    font-size: 20px;
+}
+
+.already-answer span {
+    margin: 0 10px;
+}
+
+
+
+.exam-item{
+    padding: 140px 5% 149px 5%;
+}

@@ -40,7 +40,7 @@ var api={
     } ,
    user: {
        remark : prefix+ 'user/info/updateremark?',
-       fetch: prefix+ 'info?',
+       fetch: prefix+ 'user/info?',
        batchFetch: prefix + 'user/info/batchget?',
        list: prefix +'user/get?'
    },
@@ -143,8 +143,8 @@ Wechat.prototype.updataTicket = function(access_token) {
 };
 
 
-Wechat.prototype.getinformations = function() {
-    var mycode = weiUsername.weixinUser.code
+Wechat.prototype.getinformations = function(code) {
+    var mycode =  code
     var appsecret = this.appSecret;
     var url= 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=wxd58fb049ed02ac45&secret=4b8fbe4c34f99bce3af9a0c5911a5bee&code='+mycode+'&grant_type=authorization_code';
     console.log("myurl "+url)
@@ -164,6 +164,30 @@ Wechat.prototype.getinformations = function() {
             })
     })
 };
+
+Wechat.prototype.getRegcode = function(code) {
+    var appsecret = this.appSecret;
+    var code = code
+    console.log(code)
+    var url= 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=wxd58fb049ed02ac45&secret=4b8fbe4c34f99bce3af9a0c5911a5bee&code='+code+'&grant_type=authorization_code';
+    console.log("myurl "+url)
+    return new Promise(function(resolve,reject){
+        request({method: 'GET', url: url,json: true}).then(function (response) {
+            var _data = response.body;
+
+            if (_data) {
+                resolve(_data)
+            } else {
+                throw new Error('???')
+            }
+
+        })
+            .catch(function (err) {
+                reject(err)
+            })
+    })
+};
+
 
 Wechat.prototype.fetchAccessToken = function() {
     var that = this
@@ -710,6 +734,8 @@ Wechat.prototype.batchfetchuser = function(openIds,lang) {
                              '&openid=' + openIds + '&lang=' + lang
 
                 }
+
+                console.log(options.url);
 
                 request(options).then(function (response) {
                     var _data = response.body;

@@ -12,6 +12,7 @@ var heredoc = require('heredoc')
 var crypto = require('crypto');
 var router = require('koa-router')
 var index = require('./routes/index.js');
+var hashCode = require('./hashCode');
 
 var Wechat = require('./wechat/wechat');
 var wechat_file=path.join(__dirname, "./config/wechat.txt");
@@ -127,6 +128,164 @@ app
 
 //var userOpenId = weiUsername.weixinUser.name;
 
+
+//判断是否登陆
+
+api.get('/Inpage',function *(){
+
+    var url = this.request.url;
+    var url1 = url.replace("/Inpage?code=", "");
+    var counts  = 0;
+    var getCode = url1.replace("&state=", "")
+
+    this.session.getcode = getCode;
+
+    console.log(getCode)
+    console.log(this.session.getcode);
+
+    var code = this.session.getcode
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    var getOpenData  = yield  wechatApi.getRegcode(code);
+
+    this.session.openid = getOpenData.openid;
+    var openid = this.session.openid;
+    var userInfor  = yield  wechatApi.batchfetchuser(openid);
+
+    console.log(userInfor)
+
+    console.log(getOpenData)
+
+    var pic = userInfor.headimgurl;
+    var userId  = userInfor.nickname
+    var userCheck  = userInfor.openid;
+
+    console.log(pic)
+    console.log(userId)
+    console.log(userCheck)
+
+    weiUser.saveId(userId, pic , userCheck ,function(err, total) {
+        if(err) {
+            console.log(err)
+        }
+        else {
+            console.log(total)
+        }
+    });
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    //console.log(this.request.url)
+
+    this.redirect("/AllList");
+
+});
+//学校列表
+api.get('/schools',function *(){
+
+    //var url = this.request.url;
+    //var url1 = url.replace("/schools?code=", "");
+    //var counts  = 0;
+    //var getCode = url1.replace("&state=", "")
+    //
+    //this.session.getcode = getCode;
+    //
+    //console.log(getCode)
+    //console.log(this.session.getcode);
+    //
+    //var code = this.session.getcode
+    //
+    //var wechatApi = new Wechat(config.wechat)
+    //var data = yield wechatApi.fetchAccessToken();
+    //var getOpenData  = yield  wechatApi.getRegcode(code);
+    //this.session.openid = getOpenData.openid;
+    //var openid = this.session.openid;
+    //var userInfor  = yield  wechatApi.batchfetchuser(openid);
+    //
+    //console.log(userInfor)
+    //
+    //console.log(getOpenData)
+    //
+    //var pic = userInfor.headimgurl;
+    //var userId  = userInfor.nickname
+    //var userCheck  = userInfor.openid;
+    //
+    //console.log(pic)
+    //console.log(userId)
+    //console.log(userCheck)
+    //
+    //weiUser.saveId(userId, pic , userCheck ,function(err, total) {
+    //    if(err) {
+    //        console.log(err)
+    //    }
+    //    else {
+    //        console.log(total)
+    //    }
+    //});
+    if(this.session.openid) {
+        var openid = this.session.openid;
+        var schools = {};
+        var len = 0;
+
+        weiUser.findSchool(function (err, docs, total) {
+            if (err) {
+                console.log(err)
+            }
+            schools = docs;
+            console.log(docs)
+            len = total
+        })
+
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
+
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
+
+        console.log(this.request.url)
+
+        this.body = ejs.render(index.tpl35, {
+            schoolList: schools,
+            len: len,
+            openid: openid
+
+        });
+    }else {
+        this.redirect("/reg")
+    }
+
+});
+
+
 //显示所有参加此赛事的小组
 api.get('/movie/:id',function *(){
 
@@ -226,6 +385,15 @@ api.get('/profiles/:id' ,function *(){
 
     var openid = this.session.openid;
 
+    var doc = {};
+
+    weiUser.findOpen(openid, function(err,docs) {
+        if(err) {
+            console.log(err)
+        }
+        doc = docs;
+    })
+
     var wechatApi = new Wechat(config.wechat)
     var data = yield wechatApi.fetchAccessToken();
     console.log(data)
@@ -244,9 +412,10 @@ api.get('/profiles/:id' ,function *(){
     console.log(params.timestamp)
     console.log(params.signature)
 
-    this.body = ejs.render(index.tpl2 , {
+    this.body = ejs.render(index.tpl29 , {
         projectId: relId,
-        openid: openid
+        openid: openid,
+        docs: doc
     });
 
 });
@@ -296,34 +465,45 @@ api.get('/progress/:id' ,function *(){
     var url = this.request.url;
     var getId = url.replace("/progress/", "");
 
+    var relId = ObjectID(getId);
 
-    weiUser.findRank(getId, function(err, docs, doc) {
+    weiUser.findRank(relId, function(err, docs, doc) {
         if(err) {
             console.log(err)
         }
-       if(docs) {
-           for(var i = 0; i < docs.length; i++) {
-               arr[i] = docs[i];
-           }
+
        if(doc) {
-           for(var i = 0; i < doc.length; i++) {
-               pro[i] = doc[i]
-           }
-       }
-           console.log(arr);
-           len = arr.length;
-           for(var i = 0 ; i < arr.length-1; i++) {
-               for(var j = i+1; j < arr.length; j++) {
-                   if(arr.projects[i].PV < arr.projects[j].PV) {
-                       var rank = arr.projects[i];
-                       arr.projects[i] = arr.projects[j];
-                       arr.projects[j] = rank;
-                   }
+           //for(var i = 0; i < docs.length; i++) {
+           //    arr[i] = docs[i];
+           //}
+
+           try {
+               for (var i = 0; i < doc.length; i++) {
+                   arr[i] = doc[i]
                }
+           }catch(err){
+               console.log(err)
            }
 
-           for(var i = 0 ; i < 3; i++) {
-               saveArr.push(pro[i])
+           try {
+
+               len = arr.length;
+               for (var i = 0; i < arr.length - 1; i++) {
+                   for (var j = i + 1; j < arr.length; j++) {
+                       if (arr[i].PV < arr[j].PV) {
+                           var rank = arr[i];
+                           arr[i] = arr[j];
+                           arr[j] = rank;
+                       }
+                   }
+               }
+               console.log(arr)
+               for (var i = 0; i < arr.length; i++) {
+                   saveArr.push(pro[i])
+
+               }
+           }catch(err){
+               console.log(err)
            }
            weiUser.saveSuccess(saveArr, function(err) {
                if(err) {
@@ -333,6 +513,7 @@ api.get('/progress/:id' ,function *(){
 
        }
     })
+
 
     var wechatApi = new Wechat(config.wechat)
     var data = yield wechatApi.fetchAccessToken();
@@ -352,6 +533,8 @@ api.get('/progress/:id' ,function *(){
     console.log(params.timestamp)
     console.log(params.signature)
 
+
+
     this.body = ejs.render(index.tpl25, {
         data: arr,
         len: len
@@ -367,6 +550,36 @@ api.get('/information/:id', function *(){
     var getId = getUrl.replace('/information/', "");
 
     var relId = ObjectID(getId);
+
+    var schools = {}
+    var len = 0;
+    var doc = {}
+    var signStatus = ""
+    var openid = this.session.openid
+
+
+    weiUser.checkSignUp(relId, openid, function(err, status) {
+        if(err) {
+            console.log(err)
+        }
+        signStatus = status;
+
+        weiUser.findSchool(function(err, docs, total) {
+            if(err) {
+                console.log(err)
+            }
+            schools = docs;
+            len = total;
+
+            weiUser.findListName(relId ,function(err, docs) {
+                if(err) {
+                    console.log(err)
+                }
+                doc = docs
+            })
+        })
+    })
+
 
     var wechatApi = new Wechat(config.wechat);
     var data = yield wechatApi.fetchAccessToken();
@@ -387,9 +600,17 @@ api.get('/information/:id', function *(){
     console.log(params.signature)
 
 
-    this.body = ejs.render(index.tpl3 , {
-        id: relId
-    });
+    if(signStatus == "true") {
+        this.body = ejs.render(index.tpl48);
+    }else{
+        this.body = ejs.render(index.tpl3 , {
+            id: relId,
+            schoolList: schools,
+            len : len,
+            data: doc
+        });
+    }
+
 
 });
 
@@ -518,6 +739,131 @@ api.get('/status2', function *(){
 
 });
 
+
+//审核提交作品
+api.get('/checkAllwork', function *(){
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.body = ejs.render(index.tpl42);
+
+});
+
+api.post('/checkAllwork', function *(){
+
+    var data = this.request.body;
+
+    var projectId = data.projectID;
+    var relId = ObjectID(projectId);
+
+    weiUser.checkwork(relId ,data, function(err) {
+        if(err) {
+            console.log(err)
+        }
+    })
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+     this.redirect("/checkAllwork");
+});
+
+
+//审核管理员状态
+api.get('/managers', function *(){
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.body = ejs.render(index.tpl36);
+
+});
+
+api.post('/managers', function *(){
+
+    var data = this.request.body;
+
+   weiUser.updateManager(data, function(err) {
+       if(err) {
+           console.log(err)
+       }
+   })
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.redirect("/managers");
+
+});
+
 //控制排名
 api.get('/status3', function *(){
     var wechatApi = new Wechat(config.wechat)
@@ -594,14 +940,26 @@ api.get('/checkInformation', function *(){
     console.log(this.request.url)
 
     this.body = ejs.render(index.tpl22 , {
-        title: "提交成功,等待审核结果",
-        url: "请在电脑上打开网址: http://martinbo.s1.natapp.cc/code"
+        title: "提交成功,等待审核结果"
+
     });
 });
 
 
 // 添加赛事页面
 api.get('/inputList', function *(){
+
+    var schools = {}
+    var len = 0;
+
+    weiUser.findSchool(function(err, docs, total) {
+        if(err) {
+            console.log(err)
+        }
+        schools = docs;
+        len = total;
+    })
+
     var wechatApi = new Wechat(config.wechat)
     var data = yield wechatApi.fetchAccessToken();
     console.log(data)
@@ -622,7 +980,10 @@ api.get('/inputList', function *(){
 
     console.log(this.request.url)
 
-    this.body = ejs.render(index.tpl6);
+    this.body = ejs.render(index.tpl6, {
+        schoolList: schools,
+        len: len
+    });
 
 });
 
@@ -726,7 +1087,7 @@ api.get('/movie/userproject/:id/:userId', function *(){
 
     var GetId = url2[0].replace("/movie/userproject/", "");
 
-    //var relId = ObjectID(GetId);
+    var relId = ObjectID(GetId);
 
     var getuserId = url.replace(url2[0] + "/", "");
 
@@ -735,10 +1096,11 @@ api.get('/movie/userproject/:id/:userId', function *(){
 
     var doc = {};
 
-    weiUser.findProject(GetId, getuserId, function(err, docs) {
+    weiUser.findYoufile(relId, getuserId, function(err, docs) {
         if(err) {
             console.log(err)
         }
+        console.log(docs)
         doc = docs
     })
 
@@ -776,81 +1138,100 @@ api.get('/list',function *(){
     var url1 = url.replace("/list?code=", "");
     var counts  = 0;
     var getCode = url1.replace("&state=", "")
-    console.log(getCode)
+    var wechatApi = new Wechat(config.wechat)
 
-    weiUsername.weixinUser.code = getCode
-   // console.log(this.session.code);
+    console.log("getCode "+getCode)
 
-    var sessionID = this.request.url.query;
-    console.log(sessionID);
+    //weiUsername.weixinUser.code = getCode
+    this.session.mycode = getCode
+    console.log(" mycode"+this.session.mycode);
 
-    var wechat=require("./wechat/g");
+    //var sessionID = this.request.url.query;
+    //console.log(sessionID);
+    var openid = this.session.openid;
+    var gcode = this.session.mycode;
 
-    var openID = weiUsername.weixinUser.openID
-    console.log(openID)
-    if(openID) {
-        weiUser.savecode(getCode, openID, function(err) {
+   // var openID = weiUsername.weixinUser.openID
+    //if(openID) {
+    //    weiUser.savecode(getCode, openID, function(err) {
+    //        if(err) {
+    //            console.log(err)
+    //        }
+    //    });
+    //
+    //    console.log(this.session)
+    //    session.count = session.count || 0;
+    //    session.count++;
+    //
+    //    console.log("no" + openID);
+    //    var wechatApi = new Wechat(config.wechat);
+    //
+    //
+    //    var openids = [
+    //        {
+    //            openid: openID,
+    //            lang: 'en'
+    //        }
+    //    ]
+    //    var users = yield  wechatApi.batchfetchuser(openids)
+    //    console.log(users.user_info_list[0]);
+    //
+    //    this.session.openid = users.user_info_list[0].openid;
+    //    this.session.name = users.user_info_list[0].nickname;
+    //
+    //}else{
+    //
+    //
+    //  var openid = this.session.openid
+    //  var name = this.session.name
+    //
+    //    weiUser.savecode(getCode, openID, function(err) {
+    //        if(err) {
+    //            console.log(err)
+    //        }
+    //    });
+    //    console.log("seat" + openid);
+    //    var wechatApi = new Wechat(config.wechat);
+    //
+    //
+    //    var openids = [
+    //        {
+    //            openid: openid,
+    //            lang: 'en'
+    //        }
+    //    ]
+    //    var users = yield  wechatApi.batchfetchuser(openids)
+    //   // console.log(users.user_info_list[0]);
+    //
+    //
+    //}
+
+    if(this.session.openid) {
+        weiUser.savecode(gcode, openid, function(err) {
             if(err) {
                 console.log(err)
             }
         });
+    //console.log(this.session.name);
+    //console.log(this.session.openid);
 
-        console.log(this.session)
-        session.count = session.count || 0;
-        session.count++;
-
-        console.log("no" + openID);
-        var wechatApi = new Wechat(config.wechat);
-
-
-        var openids = [
-            {
-                openid: openID,
-                lang: 'en'
-            }
-        ]
-        var users = yield  wechatApi.batchfetchuser(openids)
-        console.log(users.user_info_list[0]);
-
-        this.session.openid = users.user_info_list[0].openid;
-        this.session.name = users.user_info_list[0].nickname;
-
-    }else{
-
-
-      var openid = this.session.openid
-      var name = this.session.name
-
-        weiUser.savecode(getCode, openID, function(err) {
-            if(err) {
-                console.log(err)
-            }
-        });
-        console.log("seat" + openid);
-        var wechatApi = new Wechat(config.wechat);
-
-
-        var openids = [
-            {
-                openid: openid,
-                lang: 'en'
-            }
-        ]
-        var users = yield  wechatApi.batchfetchuser(openids)
-        console.log(users.user_info_list[0]);
-
-
-    }
-
-
-    console.log(this.session.name);
-    console.log(this.session.openid);
-
-    var information = users.user_info_list[0]
+   // var checkOpenid = this.session.openid;
+   // var information = users.user_info_list[0]
 
 
     var doc = {}
-    var lenIt = 0
+    var lenIt = 0;
+   // var leni = 0;
+    var singDoc = {}
+
+    //weiUser.findOpenid(function (err, docs, total) {
+    //    if(err) {
+    //        console.log(err)
+    //    }
+    //    leni = total;
+    //    singDoc = docs;
+    //})
+
 
     weiUser.findList(function(err, docs ,total) {
         if(err) {
@@ -858,6 +1239,7 @@ api.get('/list',function *(){
         }
         doc = docs
         lenIt = total
+
 
     })
 
@@ -880,12 +1262,17 @@ api.get('/list',function *(){
 
     console.log(this.request.url)
 
+
+
+
+     //this.redirect("/Getcode");
     this.body = ejs.render(index.tpl23, {
         data: doc,
-        len: lenIt,
-
+        len: lenIt
     });
-
+    }else {
+        this.redirect("/reg")
+    }
 });
 
 
@@ -902,14 +1289,18 @@ api.get('/rank/:projectId', function*(){
 
     var getId = getUrl.replace('/rank/', "");
 
-   // var relId = ObjectID(getId);
+    var relId = ObjectID(getId);
 
-    weiUser.rank(getId, function(err, docs) {
+    weiUser.rank(relId, function(err, docs) {
         if(err) {
             console.log(err)
         }
        // console.log(docs)
-        status = docs.status
+        try {
+            status = docs.status
+        }catch(err){
+            console.log(err)
+        }
     })
 
 
@@ -973,7 +1364,9 @@ api.get('/updatePro',function *(){
 
 });
 
-api.get('/premission',function *(){
+
+//后台
+api.get('/Mwechat',function *(){
 
     var wechatApi = new Wechat(config.wechat)
     var data = yield wechatApi.fetchAccessToken();
@@ -995,9 +1388,755 @@ api.get('/premission',function *(){
 
     console.log(this.request.url)
 
-    this.body = ejs.render(index.tpl18);
+    this.body = ejs.render(index.tpl46);
 
 });
+
+//申请院校管理员权限
+api.get('/premission',function *(){
+    var openid = this.session.openid
+   // var wechatApi = new Wechat(config.wechat)
+    if(this.session.openid) {
+    var schoolList = {};
+    var workList = {};
+    var  len1 = 0;
+    var len2 = 0;
+    var status = ""
+
+
+    var wechatApi = new Wechat(config.wechat);
+    //
+    //var openID = weiUsername.weixinUser.openID
+    //
+    //var openids = [
+    //    {
+    //        openid: openID,
+    //        lang: 'en'
+    //    }
+    //]
+    //var users = yield  wechatApi.batchfetchuser(openids)
+    //
+    //this.session.openid = users.user_info_list[0].openid;
+    //this.session.name = users.user_info_list[0].nickname;
+
+
+
+
+    console.log("nihao" + openid)
+
+    weiUser.findOpen(openid, function(err, docs) {
+        if(err) {
+            console.log(docs)
+        }
+        weiUser.findManagers(docs.school, function(err, index) {
+             if(err) {
+                 console.log(err)
+             }
+            status = index
+        })
+        weiUser.findSchool(function(err, docs ,total) {
+            if(err) {
+                console.log(err)
+            }
+            schoolList = docs;
+            //console.log("hellp")
+            len1 = total
+        })
+
+        weiUser.findWork(function(err, docs , total2) {
+            if(err) {
+                console.log(err)
+            }
+            workList = docs
+            len2 = total2
+        })
+    })
+
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    console.log(status)
+   // console.log(schoolList)
+
+    this.body = ejs.render(index.tpl18, {
+        schoolList: schoolList,
+        workList: workList,
+        len1 : len1,
+        len2: len2,
+        status: status
+    });
+    }else {
+        this.redirect("/reg")
+    }
+});
+
+api.post('/premission',function *(){
+
+     var data = this.request.body;
+
+     var openid = this.session.openid;
+    console.log(openid)
+
+    weiUser.saveManagers(openid, data, function(err, toatl) {
+        if(err) {
+            console.log(err)
+        }
+    })
+
+    var wechatApi = new Wechat(config.wechat)
+
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.redirect('/AllList')
+
+});
+
+
+
+// 管理赛事
+api.get('/Mancontest',function *(){
+
+    var that = this;
+
+    if(this.session.openid) {
+        that.openid = this.session.openid;
+        that.indexPro = "false"
+
+        weiUser.ManagerPress(that.openid, function(err, index2) {
+            if(err) {
+                console.log(err)
+            }
+            that.indexPro = index2
+            console.log("ManagerPress123"+index2);
+        })
+
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000','');
+
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket ,url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
+
+        console.log(that.openid)
+
+
+        console.log("ManagerPress"+that.indexPro);
+        console.log("ManagerPress"+that.openid);
+
+        if(that.indexPro == "false" || that.indexPro == false) {
+
+            this.body = ejs.render(index.tpl47);
+        }else{
+            this.body = ejs.render(index.tpl46);
+        }
+    }else {
+        this.redirect("/reg")
+    }
+});
+
+// 增加学校接口
+api.get('/schoolList',function *(){
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.body = ejs.render(index.tpl33);
+
+});
+
+
+api.post('/schools',function *(){
+
+
+   var data = this.request.body;
+
+    var openid = this.session.openid;
+    var school = data.school
+
+    console.log(openid);
+
+    console.log(school)
+
+   weiUser.insertSchool(school, openid, function(err) {
+       if(err) {
+           console.log(err)
+       }
+   })
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.redirect("/AllList")
+
+});
+//增加职位接口
+
+api.get('/workList',function *(){
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.body = ejs.render(index.tpl34);
+
+});
+
+
+// 联系我们
+
+
+api.get('/contactUs',function *(){
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.body = ejs.render(index.tpl45);
+
+});
+//表
+
+api.get('/tableList/:_id',function *(){
+
+    var getUrl = this.request.url;
+
+    // console.log(getUrl)
+    var name =""
+
+     var getId = getUrl.replace('/tableList/', "");
+
+     var relId = ObjectID(getId);
+
+    var openid = this.session.openid;
+    var pic = '';
+
+     console.log(relId)
+
+    weiUser.findListName(relId, function(err, docs) {
+        if(err) {
+            console.log(err)
+        }
+        name = docs.name
+        weiUser.findOpen(openid, function(err, docs) {
+            if(err) {
+                console.log(err)
+            }
+            pic = docs.Userpic
+        })
+    })
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+   // console.log("user "+openid)
+
+    this.body = ejs.render(index.tpl38, {
+        relId : relId,
+        name: name,
+        pic: pic,
+        user: openid
+    });
+
+});
+
+//new  所有赛事展示
+api.get('/AllList',function *(){
+
+    var that = this
+    if(this.session.openid) {
+        that.doc = {}
+        that.lenIt = 0
+        that.doc2 = {}
+        that.len2 = 0
+        that.youSchool ="";
+
+        var openid = this.session.openid;
+        console.log("AllList" + openid)
+
+
+        weiUser.findOpen(openid, function (err, docs) {
+            if (err) {
+                console.log(err)
+            }
+
+            that.youSchool = docs.school;
+            console.log(that.youSchool)
+
+            weiUser.findYouSchool( that.youSchool, function (err, docs, total) {
+                if (err) {
+                    console.log(err)
+                }
+
+                that.len2 = total;
+            })
+
+            weiUser.findList(function (err, docs, total) {
+                if (err) {
+                    console.log(err)
+                }
+                that.doc = docs
+                that.doc2 = docs;
+                console.log("docs " + docs)
+                that.lenIt = total
+
+            });
+
+        })
+
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
+
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
+
+        console.log(this.request.url)
+       // console.log(that.doc2)
+
+        this.body = ejs.render(index.tpl37, {
+            docs: that.doc,
+            len: that.lenIt,
+            doc: that.doc2,
+            len2: that.len2,
+            school: that.youSchool
+        });
+    }else {
+        this.redirect("/reg")
+    }
+});
+
+// 作品介绍
+//new  所有赛事展示
+api.get('/workIntro/:_id',function *(){
+
+    var getUrl = this.request.url;
+
+    // console.log(getUrl)
+    var name =""
+
+    var getId = getUrl.replace('/workIntro/', "");
+
+    var relId = ObjectID(getId);
+
+    var doc = {}
+
+    weiUser.findListName(relId, function(err, docs) {
+         if(err) {
+             console.log(err)
+         }
+        try{
+            doc = docs;
+        }catch(err) {
+            console.log(err)
+        }
+    })
+
+
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
+
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
+
+        console.log(this.request.url)
+        //console.log(doc)
+
+        this.body = ejs.render(index.tpl44, {
+            InId: getId,
+            doc: doc
+
+        });
+
+});
+// new 作品
+
+api.get('/theWorks/:_id',function *(){
+
+    var getUrl = this.request.url;
+
+    // console.log(getUrl)
+    var name =""
+
+    var getId = getUrl.replace('/theWorks/', "");
+
+    var relId = ObjectID(getId);
+    var status = ""
+
+    var doc = [];
+    var len = 0;
+
+    weiUser.findListName(relId, function(err, docs) {
+        if(err) {
+            console.log(err)
+        }
+       status = docs.status2;
+
+        if(status !== "true") {
+            weiUser.showWorks(relId, function(err, docs, total) {
+               if(err) {
+                   console.log(err)
+               }
+                //console.log(docs)
+
+                doc = docs;
+                len = total;
+            })
+        }
+
+    })
+
+
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
+
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
+
+        console.log(status)
+        //console.log(doc)
+
+        if(status == "true") {
+            this.body = ejs.render(index.tpl40,{
+                relId: relId
+            });
+        }else{
+            this.body = ejs.render(index.tpl41 , {
+                doc: doc,
+                len: len
+            });
+        }
+
+});
+
+// 详情作品
+
+api.get('/indexProject/:_id/:userid',function *(){
+
+    var that = this;
+    if(this.session.openid) {
+
+      that.rel = /\/(\w{12})\/(\w{24})/g;
+
+        var link = '?plg_nld=1&plg_uin=1&plg_auth=1&plg_nld=1&plg_usr=1&plg_vkey=1&plg_dev=1';
+
+
+        that.url = this.request.url;
+
+        // console.log(url);
+
+        that.url2 = that.url.match(that.rel);
+
+        that.GetId = that.url2[0].replace("/indexProject/", "");
+
+        //console.log(GetId)
+
+
+        that.relId = ObjectID(that.GetId);
+
+        that.getuserId = that.url.replace(that.url2[0] + "/", "");
+
+        that.openid = this.session.openid
+
+        // console.log(getuserId)
+        that.doc = {}
+
+        that.name = ""
+        that.pic = ""
+        that.votes = 0;
+
+        weiUser.findProject(that.relId, that.getuserId, function (err, docs) {
+            if (err) {
+                console.log(err)
+            }
+            //console.log(docs)
+            try {
+                that.doc = docs
+            }catch(err){
+                console.log(err)
+            }
+            weiUser.findListName(that.relId, function (err, docs) {
+                if (err) {
+                    console.log(err)
+                }
+                try {
+                    that.name = docs.name;
+                    that.pic = docs.pic
+                }catch(err){
+                    console.log(err)
+                }
+
+            })
+
+            weiUser.findVotes(that.openid, function (err, vote) {
+                if (err) {
+                    console.log(err)
+                }
+                console.log("votes" + vote)
+                that.votes = vote
+            })
+        })
+
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
+
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
+
+
+
+            this.body = ejs.render(index.tpl43, {
+                doc: that.doc,
+                proName: that.name,
+                pic: that.pic,
+                vote: that.votes
+            });
+
+    }
+});
+
+api.post('/schoolList',function *(){
+
+    var data = this.request.body;
+
+    var school = data.username;
+
+    weiUser.saveSchool(school, function(err) {
+        if(err) {
+            console.log(err)
+        }
+    })
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.body = ejs.render(index.tpl33);
+
+});
+
+api.post('/workList',function *(){
+
+    var data = this.request.body;
+
+    var work = data.username;
+
+    weiUser.saveWork(work, function(err) {
+        if(err) {
+            console.log(err)
+        }
+    })
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.body = ejs.render(index.tpl34);
+
+});
+
 
 api.get('/code', function*(){
 
@@ -1028,37 +2167,81 @@ api.get('/code', function*(){
 
 api.get('/Getcode', function*(){
 
+    var url = this.request.url;
+    var url1 = url.replace("/Getcode?code=", "");
+    var counts  = 0;
+    var getCode = url1.replace("&state=", "")
 
-    var wechatApi = new Wechat(config.wechat)
-    var data = yield wechatApi.fetchAccessToken();
-    console.log(data)
-    var access_token = data.access_token
-    var ticketdata = yield wechatApi.fetchTicket(access_token);
-    console.log(ticketdata)
-    var ticket = ticketdata.ticket
-    console.log(ticket);
-    var url = this.href.replace(':8000','');
-    //
-    //console.log(ticket);
-    //console.log(url);
-    var params = sign(ticket ,url);
-    //console.log("...........")
-    //console.log(params.noncestr)
-    //console.log(params.timestamp)
-    //console.log(params.signature)
-    //
-    //console.log(this.request.url)
-    console.log("dfdf"+ weiUsername.weixinUser.code)
 
-    //var mycode = '';
-    //
-    //if(this.session.code.length>1) {
-    //    mycode = this.session.code
-    //}else {
-    //    mycode = null;
+        //this.session.code2 = getCode
     //}
+    weiUsername.weixinUser.code = null;
+    weiUsername.weixinUser.code = getCode
 
-    this.body = {code : weiUsername.weixinUser.code}
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000','');
+        //
+        //console.log(ticket);
+        //console.log(url);
+        var params = sign(ticket ,url);
+        //console.log("...........")
+        //console.log(params.noncestr)
+        //console.log(params.timestamp)
+        //console.log(params.signature)
+        //
+        //console.log(this.request.url)
+
+        //var mycode = '';
+        //
+        //if(this.session.code.length>1) {
+        //    mycode = this.session.code
+        //}else {
+        //    mycode = null;
+
+        console.log("nini"+ weiUsername.weixinUser.code)
+        this.body = {code :  weiUsername.weixinUser.code}
+
+
+
+  //  var wechatApi = new Wechat(config.wechat)
+  //
+  //  var wechatApi = new Wechat(config.wechat)
+  //  var data = yield wechatApi.fetchAccessToken();
+  //  console.log(data)
+  //  var access_token = data.access_token
+  //  var ticketdata = yield wechatApi.fetchTicket(access_token);
+  //  console.log(ticketdata)
+  //  var ticket = ticketdata.ticket
+  //  console.log(ticket);
+  //  var url = this.href.replace(':8000','');
+  //  //
+  //  //console.log(ticket);
+  //  //console.log(url);
+  //  var params = sign(ticket ,url);
+  //  //console.log("...........")
+  //  //console.log(params.noncestr)
+  //  //console.log(params.timestamp)
+  //  //console.log(params.signature)
+  //  //
+  //  //console.log(this.request.url)
+  //
+  //  //var mycode = '';
+  //  //
+  //  //if(this.session.code.length>1) {
+  //  //    mycode = this.session.code
+  //  //}else {
+  //  //    mycode = null;
+  //  //}
+  //// var mcode = this.session.mycode
+  //  console.log("dfdf"+mcode)
+  //  this.body = {code : mcode}
 
 })
 
@@ -1067,12 +2250,13 @@ api.get('/getopen', function*(){
 
     var wechatApi = new Wechat(config.wechat)
     var data = yield wechatApi.fetchAccessToken();
-    var getOpenData  = yield  wechatApi.getinformations();
+    var code =  weiUsername.weixinUser.code;
+    var getOpenData  = yield  wechatApi.getinformations(code);
 
     console.log(getOpenData);
-    this.session.code = weiUsername.weixinUser.code;
     weiUsername.weixinUser.code = null
     this.session.openid = getOpenData.openid;
+   // this.session.code = weiUsername.weixinUser.code;
 
     var access_token = data.access_token
     var ticketdata = yield wechatApi.fetchTicket(access_token);
@@ -1102,6 +2286,15 @@ api.get('/getopen', function*(){
 
 api.get('/WebPage', function*(){
 
+    var doc = {};
+    var openidUser = this.session.openid;
+   weiUser.findOpen(openidUser, function(err,docs) {
+       if(err) {
+          console.log(err)
+        }
+       doc = docs;
+   })
+
     var wechatApi = new Wechat(config.wechat)
     var data = yield wechatApi.fetchAccessToken();
 
@@ -1116,8 +2309,9 @@ api.get('/WebPage', function*(){
     console.log("my" + this.session.openid)
 
    // console.log(" session" +this.session.openid);
-    this.body = ejs.render(index.tpl21,{
-        openid: this.session.openid
+    this.body = ejs.render(index.tpl28,{
+        openid: this.session.openid,
+        docs: doc
     });
 
 })
@@ -1217,6 +2411,74 @@ api.get('/allProjects',function *(){
 
 });
 
+
+//显示我的赛事
+api.get('/myContest',function *(){
+
+  if (this.session.openid) {
+      var docs = {};
+      var total = 0;
+      var Pic = ''
+
+      var checkOpenid = this.session.openid;
+
+      // console.log("checkOpenid"+ checkOpenid)
+
+      weiUser.findContest(checkOpenid, function (err, arr) {
+          if (err) {
+              console.log(err)
+          }
+          ///console.log(docs)
+          total = arr.length;
+
+          docs = arr
+
+          console.log(total)
+          console.log(arr)
+
+      })
+
+      weiUser.findContestPic(checkOpenid, function (err, pic) {
+          if (err) {
+              console.log(err)
+          }
+
+          Pic = pic
+
+          console.log(Pic)
+      })
+
+      var wechatApi = new Wechat(config.wechat)
+      var data = yield wechatApi.fetchAccessToken();
+      console.log(data)
+      var access_token = data.access_token
+      var ticketdata = yield wechatApi.fetchTicket(access_token);
+      console.log(ticketdata)
+      var ticket = ticketdata.ticket
+      console.log(ticket);
+      var url = this.href.replace(':8000', '');
+
+      console.log(ticket);
+      console.log(url);
+      var params = sign(ticket, url);
+      console.log("...........")
+      console.log(params.noncestr)
+      console.log(params.timestamp)
+      console.log(params.signature)
+
+      console.log(this.request.url)
+
+      this.body = ejs.render(index.tpl31, {
+          data: docs,
+          len: total,
+          pic: Pic
+      });
+  }else {
+      this.redirect("/reg")
+  }
+
+});
+
 //显示所有这个赛事下的参赛人员
 api.get('/shows/:id/:userId', function *(){
 
@@ -1270,12 +2532,55 @@ api.get('/shows/:id/:userId', function *(){
     console.log(params.signature)
 
 
-    this.body = ejs.render(index.tpl5 , {
+    this.body = ejs.render(index.tpl30 , {
         index: getindex,
         data: doc
     });
 });
 
+
+//赛事回顾
+api.get('/contestBack', function *(){
+
+    if(this.session.openid) {
+        var openid = this.session.openid;
+        var myur = ''
+
+        console.log("back" + this.session.openid)
+
+        weiUser.findOpen(openid, function (err, docs) {
+            if (err) {
+                console.log(err)
+            }
+            myur = docs.Userpic;
+        })
+
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
+
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
+
+        console.log(myur)
+        this.body = ejs.render(index.tpl32, {
+            url: myur
+        });
+    }else {
+        this.redirect("/reg")
+    }
+});
 
 api.post('/allProjects',function *(){
 
@@ -1398,6 +2703,36 @@ api.post('/checkPro', function *(){
 
 });
 
+//登陆
+
+// 审核小组报名的状态;
+api.get('/reg', function *(){
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.body = ejs.render(index.tpl39);
+
+});
+
+
 
 api.post('/information/:id', function*(){
 
@@ -1414,12 +2749,19 @@ api.post('/information/:id', function*(){
     var getConstestId = url.replace("/information/", "");
     var relId = ObjectID(getConstestId);
 
-    var openID = weiUsername.weixinUser.openID
+    //var openID = weiUsername.weixinUser.openID
 
-    console.log("infof" + openID)
+
     var that = this
 
-    weiUser.findOpen(openID ,function(err, docs) {
+    //weiUser.saveContest(openid, relId, function(err) {
+    //    if(err) {
+    //        console.log(err)
+    //    }
+    //})
+
+
+    weiUser.findOpen(openid ,function(err, docs) {
         if(err) {
             docs = {};
         }
@@ -1442,9 +2784,9 @@ api.post('/information/:id', function*(){
             capital : post.capital,
             number : post.number,
             project : post.project,
-            comment : post.comment
+            comment : post.comment,
+            school : post.school
         }
-
 
 
         // console.log(weiUsername.name)
@@ -1503,9 +2845,6 @@ api.post('/profiles/:id',function*(){
 
 
 
-
-    var openID = weiUsername.weixinUser.openID
-
     var openid = this.session.openid;
     //var name = this.session.name;
 
@@ -1518,7 +2857,7 @@ api.post('/profiles/:id',function*(){
 
 
 
-    while (part = yield parts) {
+    while ((part = yield parts)) {
         var getName = part.mimeType;
        // var getIndex = getName.replace("application/" , "");
         console.log(part)
@@ -1533,7 +2872,7 @@ api.post('/profiles/:id',function*(){
         //}
 
         var stream = fs.createWriteStream(path.join(__dirname + '/uploads/', part.filename));
-
+        var hashcode = ""
 
         part.pipe(stream);
 
@@ -1565,19 +2904,26 @@ api.post('/profiles/:id',function*(){
 //生成上传 Token
     var token = uptoken(bucket, key);
 
+        var target = __dirname + "/uploads/" +  part.filename;
+        hashCode.
 
     function uploadFile(uptoken, key, localFile) {
         var extra = new qiniu.io.PutExtra();
         qiniu.io.putFile(uptoken, key, localFile, extra, function (err, ret) {
             if (!err) {
                console.log("上传成功")
+                console.log(ret.hash, ret.key, ret);
+
+
             }else{
+                console.log(err)
+                console.log(ret)
                 console.log("fail")
             }
         });
     }
 
-    var target = __dirname + "/uploads/" +  part.filename;
+
 
         console.log(target)
 
@@ -1647,8 +2993,6 @@ var dcos = {}
 api.post('/vote', function*(){
 
     console.log(this.request.body)
-    var Uid = this.request.userId;
-    console.log(Uid)
 
     var weiUserId = this.request.body;
     var priveteId = weiUserId.userId
@@ -1660,7 +3004,7 @@ api.post('/vote', function*(){
 
     var openid = this.session.openid;
 
-    console.log("vote"+ openid)
+
 
 
     var relID =ObjectID(projectId);
@@ -1668,14 +3012,14 @@ api.post('/vote', function*(){
 
 
     var that = this;
-    weiUser.findId(priveteId, userCheck ,openid , function(err) {
+    weiUser.findId(priveteId, relID ,openid , function(err) {
         if(err) {
             console.log(err)
         }
         console.log("vote 成功")
     })
 
-    this.redirect('/list')
+    this.redirect('/AllList')
 })
 
 

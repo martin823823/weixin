@@ -1,0 +1,16 @@
+.banner{
+    width: 100%;
+}
+.banner img,.s-banner img{
+    width: 100%;
+}
+
+
+
+.case_box{position:relative;width:100%;overflow:hidden;}
+.case_box ul{position:absolute;top:0px;left:0px;}
+.case_box ul li{float:left;list-style: none;}
+
+.case_box ol{position:absolute;bottom:0px;left:50%;height:12px;z-index:4;}
+.case_box ol li{float:left;margin:0 4px;display:inline;width:6px;height:6px;line-height:999em;overflow:hidden;cursor:pointer;background-color: #fff;border-radius: 3px;}
+.case_box ol li.active{background: #efa356;}
