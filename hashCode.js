@@ -1,7 +1,10 @@
 /**
  * Created by mac on 17/3/28.
  */
-function getEtag(buffer,callback){
+
+
+module.exports = {
+    hashcode: function(buffer,callback){
 
     // 判断传入的参数是buffer还是stream还是filepath
     var mode = 'buffer';
@@ -77,5 +80,4 @@ function getEtag(buffer,callback){
     }
 
 }
-
-module.exports = getEtag;
+};

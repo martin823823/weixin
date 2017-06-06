@@ -13,34 +13,6 @@ var request = require('request');
 var mongo = require('./mongodb');
 
 
-
-//app.use(session({
-//    store: sessionStore.create(),
-//    collection: 'sessions',
-//    connection: mongo,
-//    expires: 30 * 60 * 1000,
-//    model: 'KoaSession'
-//}));
-
-
-
-//var Koa=require("koa");
-//var router = require('koa-router')
-//var app = new Koa();
-//
-//var api = router();
-//app
-//    .use(api.routes())
-//    .use(api.allowedMethods());
-
-//var userInfor = {
-//    pic : '',
-//    Id: null
-//}
-//
-//module.exports = userInfor;
-
-
 wechatApi.deletemenu().then(function(){
    return wechatApi.createMenu(menu)
 })
@@ -106,47 +78,16 @@ exports.reply = function* (next){
             var userId  = users.user_info_list[0].nickname
             var userCheck  = users.user_info_list[0].openid
 
-           // uesrOpenID = userCheck
-            //console.log(username);
+
 
             console.log(userId)
-          //   this.session.user = userId
-
-            // User.weixinUser.name = userId
-
-
-           // User.weixinUser.userCheck = uesrOpenID
-
-
-            //weiUser.checkView(userId, function(err , docs) {
-            //    if(err) {
-            //        console.log(err);
-            //    }
-            //    if(docs !== []) {
-            //        console.log("ni "+docs)
-            //    }else{
-            //
-            //    }
-            //})
-
-
-            //weiUser.saveId(userId, pic , userCheck ,function(err, total) {
-            //    if(err) {
-            //        console.log(err)
-            //    }
-            //    else {
-            //        console.log(total)
-            //    }
-            //});
-
-                // userInfor.pic = users.user_info_list[0].headimgurl;
 
 
             if (message.EventKey) {
                 console.log('扫二维码进来：' + message.EventKey + ' ' + message.Ticket)
             }
-            this.body = '欢迎关注去大赛公众号,请通过以下地址设置你所在的学校' +
-                         'http://martinbo.s1.natapp.cc/schools';
+            this.body = '欢迎关注上海安吉汽车物流有限公司公众号,请通过以下地址设置你所在的子公司' +
+                         'http://martin123.natapp1.cc/companys';
         }else if(message.Event === 'unsubscribe'){
             console.log('无情取关')
             User.weixinUser.name = null
@@ -210,6 +151,9 @@ exports.reply = function* (next){
 
         }
 
+    }
+    else if(message.MsgType === 'location') {
+      console.log(message)
     }
     else if(message.MsgType === 'text'){
        var content = message.Content

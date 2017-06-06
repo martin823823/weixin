@@ -48,7 +48,7 @@ var uuidV1 = require('uuid/v1');
 
 var app = new Koa();
 
-app.keys = ['koa','weixin'];
+app.keys = ['koa','Company'];
 
 
 unoconv.listen();
@@ -194,11 +194,11 @@ api.get('/Inpage',function *(){
 
     //console.log(this.request.url)
 
-    this.redirect("/AllList");
+    this.redirect("/notice");
 
 });
-//学校列表
-api.get('/schools',function *(){
+//子公司列表 '/schools'
+api.get('/companys',function *(){
 
     //var url = this.request.url;
     //var url1 = url.replace("/schools?code=", "");
@@ -241,14 +241,14 @@ api.get('/schools',function *(){
     //});
     if(this.session.openid) {
         var openid = this.session.openid;
-        var schools = {};
+        var company = {};
         var len = 0;
 
-        weiUser.findSchool(function (err, docs, total) {
+        weiUser.findCompany(function (err, docs, total) {
             if (err) {
                 console.log(err)
             }
-            schools = docs;
+            company = docs;
             console.log(docs)
             len = total
         })
@@ -274,7 +274,7 @@ api.get('/schools',function *(){
         console.log(this.request.url)
 
         this.body = ejs.render(index.tpl35, {
-            schoolList: schools,
+            schoolList: company,
             len: len,
             openid: openid
 
@@ -381,18 +381,18 @@ api.get('/profiles/:id' ,function *(){
 
     var url = this.request.url;
     var getId = url.replace("/profiles/", "");
-    var relId = ObjectID(getId);
+    //var relId = ObjectID(getId);
 
-    var openid = this.session.openid;
-
-    var doc = {};
-
-    weiUser.findOpen(openid, function(err,docs) {
-        if(err) {
-            console.log(err)
-        }
-        doc = docs;
-    })
+    //var openid = this.session.openid;
+    //
+    //var doc = {};
+    //
+    //weiUser.findOpen(openid, function(err,docs) {
+    //    if(err) {
+    //        console.log(err)
+    //    }
+    //    doc = docs;
+    //})
 
     var wechatApi = new Wechat(config.wechat)
     var data = yield wechatApi.fetchAccessToken();
@@ -412,10 +412,10 @@ api.get('/profiles/:id' ,function *(){
     console.log(params.timestamp)
     console.log(params.signature)
 
-    this.body = ejs.render(index.tpl29 , {
-        projectId: relId,
-        openid: openid,
-        docs: doc
+    this.body = ejs.render(index.tpl3 , {
+
+        getId: getId
+
     });
 
 });
@@ -542,120 +542,227 @@ api.get('/progress/:id' ,function *(){
 
 });
 
-//参赛小组报名页面;
-api.get('/information/:id', function *(){
+//参赛小组报名页面;MP_verify_dFqk7Kh6RcABps5Y
 
-    var getUrl = this.request.url;
+api.get('/expenses', function *(){
 
-    var getId = getUrl.replace('/information/', "");
+    var openid = this.session.openid;
+    var r1=Math.floor(Math.random()*9+1);//产生2个0-9的随机数
+    var r2=Math.floor(Math.random()*9+1);
+    //   var now = System.currentTimeMillis();//一个13位的时间戳
+    var now = Date.parse(new Date());
+    var out_trade_no = r1.toString() + r2.toString() + now.toString()// 订单ID
 
-    var relId = ObjectID(getId);
+    if(openid) {
 
-    var schools = {}
-    var len = 0;
-    var doc = {}
-    var signStatus = ""
-    var openid = this.session.openid
+        console.log("bussiness" + openid)
+        var wechatApi = new Wechat(config.wechat);
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
 
-
-    weiUser.checkSignUp(relId, openid, function(err, status) {
-        if(err) {
-            console.log(err)
-        }
-        signStatus = status;
-
-        weiUser.findSchool(function(err, docs, total) {
-            if(err) {
-                console.log(err)
-            }
-            schools = docs;
-            len = total;
-
-            weiUser.findListName(relId ,function(err, docs) {
-                if(err) {
-                    console.log(err)
-                }
-                doc = docs
-            })
-        })
-    })
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
 
 
-    var wechatApi = new Wechat(config.wechat);
-    var data = yield wechatApi.fetchAccessToken();
-    console.log(data)
-    var access_token = data.access_token
-    var ticketdata = yield wechatApi.fetchTicket(access_token);
-    console.log(ticketdata)
-    var ticket = ticketdata.ticket
-    console.log(ticket);
-    var url = this.href.replace(':8000','');
+        this.body = ejs.render(index.tpl4, {
+            openid: openid,
+            out_trade_no: out_trade_no,
+            nonceStr: params.noncestr,
+            timestamp: params.timestamp,
+            signature: params.signature
 
-    console.log(ticket);
-    console.log(url);
-    var params = sign(ticket ,url);
-    console.log("...........")
-    console.log(params.noncestr)
-    console.log(params.timestamp)
-    console.log(params.signature)
-
-
-    if(signStatus == "true") {
-        this.body = ejs.render(index.tpl48);
-    }else{
-        this.body = ejs.render(index.tpl3 , {
-            id: relId,
-            schoolList: schools,
-            len : len,
-            data: doc
         });
+    }else{
+        this.redirect('/reg')
     }
 
 
 });
 
+//设置个人信息
+api.get('/setInfor', function *(){
+
+    var openid = this.session.openid;
+    var sataus = "true"
+    var doc = {}
+
+    if(openid) {
+
+        weiUser.checkStaInfor(openid, function (err, docs) {
+            if(err) {
+                console.log(err)
+            }
+
+           doc = docs;
+
+            if(docs == null) {
+                sataus = "false"
+            }
+        })
+
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
+
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
+
+        console.log(this.request.url)
+
+        this.body = ejs.render(index.tpl7,{
+            status: sataus,
+            doc: doc
+        });
+
+    }else{
+        this.redirect('/reg')
+    }
+
+});
+
+//修改个人信息
+api.post('/updateInfor', function *(){
+
+    var openid = this.session.openid;
+    var data = this.request.body
 
 
-
-api.get('/vote/:id', function *(){
-
-    var url = this.request.url;
-    var getPrivateId = url.replace("/vote/", "");
-
-    console.log("vote " + getPrivateId)
-
-    var voteNumber = {};
-
-    weiUser.findVote(getPrivateId, function(err, docs) {
-        if(err) {
-            console.log(err)
-        }
-        voteNumber = docs
+    weiUser.updateStaInfor(openid, data, function(err) {
+        if(err) console.log(err);
     })
 
-    var wechatApi = new Wechat(config.wechat)
-    var data = yield wechatApi.fetchAccessToken();
-    console.log(data)
-    var access_token = data.access_token
-    var ticketdata = yield wechatApi.fetchTicket(access_token);
-    console.log(ticketdata)
-    var ticket = ticketdata.ticket
-    console.log(ticket);
-    var url = this.href.replace(':8000','');
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
 
-    console.log(ticket);
-    console.log(url);
-    var params = sign(ticket ,url);
-    console.log("...........")
-    console.log(params.noncestr)
-    console.log(params.timestamp)
-    console.log(params.signature)
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
 
-    console.log(this.request.url)
+        console.log(this.request.url)
 
-    this.body = ejs.render(index.tpl9 , {
-        data : voteNumber
-    });
+      this.redirect("/setInfor")
+
+
+});
+
+//查询报销信息
+api.get('/checkPay', function *(){
+
+    var openid = this.session.openid;
+    var doc = {}
+    var len = 0
+
+    if(openid) {
+
+        weiUser.checkpay(openid , function(err, docs) {
+            if(err) console.log(err);
+
+            doc = docs
+            if(doc == null) {
+
+            }else{
+                len = docs.materialInfor.length;
+
+            }
+
+        })
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
+
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
+
+        console.log(this.request.url)
+
+        this.body = ejs.render(index.tpl8, {
+            doc: doc,
+            len: len
+        });
+
+    }else{
+        this.redirect('/reg')
+    }
+
+});
+api.post('/setInformation', function *(){
+
+        var data = this.request.body;
+
+        var openid = this.session.openid;
+
+        weiUser.saveStaInfor(openid, data, function (err) {
+            if(err) {
+                console.log(err)
+            }
+        })
+        var wechatApi = new Wechat(config.wechat)
+        var data = yield wechatApi.fetchAccessToken();
+        console.log(data)
+        var access_token = data.access_token
+        var ticketdata = yield wechatApi.fetchTicket(access_token);
+        console.log(ticketdata)
+        var ticket = ticketdata.ticket
+        console.log(ticket);
+        var url = this.href.replace(':8000', '');
+
+        console.log(ticket);
+        console.log(url);
+        var params = sign(ticket, url);
+        console.log("...........")
+        console.log(params.noncestr)
+        console.log(params.timestamp)
+        console.log(params.signature)
+
+        console.log(this.request.url)
+
+       this.redirect("/setInfor")
+
+
 
 });
 
@@ -892,6 +999,9 @@ api.get('/status3', function *(){
 
 //提交文件后,显示等待审核的页面;
 api.get('/check', function *(){
+
+    var openid = this.session.openid;
+
     var wechatApi = new Wechat(config.wechat)
     var data = yield wechatApi.fetchAccessToken();
     console.log(data)
@@ -913,7 +1023,8 @@ api.get('/check', function *(){
     console.log(this.request.url)
 
     this.body = ejs.render(index.tpl10 , {
-        title: "提交成功,等待审核结果"
+        title: "报销申请提交成功",
+        openid: openid
     });
 });
 
@@ -1568,7 +1679,6 @@ api.get('/Mancontest',function *(){
         console.log("ManagerPress"+that.openid);
 
         if(that.indexPro == "false" || that.indexPro == false) {
-
             this.body = ejs.render(index.tpl47);
         }else{
             this.body = ejs.render(index.tpl46);
@@ -1578,8 +1688,8 @@ api.get('/Mancontest',function *(){
     }
 });
 
-// 增加学校接口
-api.get('/schoolList',function *(){
+// 增加学校接口 schoolList
+api.get('/companyList',function *(){
 
     var wechatApi = new Wechat(config.wechat)
     var data = yield wechatApi.fetchAccessToken();
@@ -1606,19 +1716,19 @@ api.get('/schoolList',function *(){
 });
 
 
-api.post('/schools',function *(){
+api.post('/companys',function *(){
 
 
    var data = this.request.body;
 
     var openid = this.session.openid;
-    var school = data.school
+    var company = data.company
 
     console.log(openid);
 
-    console.log(school)
+    console.log(company)
 
-   weiUser.insertSchool(school, openid, function(err) {
+   weiUser.insertCompany(company, openid, function(err) {
        if(err) {
            console.log(err)
        }
@@ -1644,7 +1754,7 @@ api.post('/schools',function *(){
 
     console.log(this.request.url)
 
-    this.redirect("/AllList")
+    this.redirect("/notice")
 
 });
 //增加职位接口
@@ -1704,35 +1814,94 @@ api.get('/contactUs',function *(){
     this.body = ejs.render(index.tpl45);
 
 });
-//表
+//在途信息
 
-api.get('/tableList/:_id',function *(){
-
-    var getUrl = this.request.url;
-
-    // console.log(getUrl)
-    var name =""
-
-     var getId = getUrl.replace('/tableList/', "");
-
-     var relId = ObjectID(getId);
+api.get('/roadInfor',function *(){
 
     var openid = this.session.openid;
-    var pic = '';
+    var roadStatus = "" ;
 
-     console.log(relId)
+    var doc = {}
+    var docs = {}
+    var len = 0
 
-    weiUser.findListName(relId, function(err, docs) {
+    if(openid) {
+
+     weiUser.findRoad(openid, function(err, docs0) {
+         if(err) {
+             console.log(err)
+         }
+
+         doc = docs0
+         weiUser.checkRoad(openid, function(err, docs1) {
+             if(err) {
+                 console.log(err)
+             }
+             roadStatus = docs1.roadInfor;
+
+
+         })
+
+         weiUser.AllRoad(function(err, docs2, total) {
+             if(err) {
+                 console.log(err)
+             }
+             docs = docs2;
+             len = total
+
+         })
+     })
+
+
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+
+    this.body = ejs.render(index.tpl37, {
+        roadInfor: roadStatus,
+        doc: doc,
+        docs: docs,
+        len: len,
+        nonceStr: params.noncestr,
+        timestamp: params.timestamp,
+        signature: params.signature
+
+    });
+
+
+
+    }else{
+        this.redirect('/reg')
+    }
+
+});
+
+//结束行程
+
+api.post('/endRoad',function *(){
+
+    var openid = this.session.openid;
+
+    weiUser.endRoad(openid, function (err) {
         if(err) {
             console.log(err)
         }
-        name = docs.name
-        weiUser.findOpen(openid, function(err, docs) {
-            if(err) {
-                console.log(err)
-            }
-            pic = docs.Userpic
-        })
     })
 
     var wechatApi = new Wechat(config.wechat)
@@ -1753,14 +1922,82 @@ api.get('/tableList/:_id',function *(){
     console.log(params.timestamp)
     console.log(params.signature)
 
-   // console.log("user "+openid)
+    this.redirect("/roadInfor")
 
-    this.body = ejs.render(index.tpl38, {
-        relId : relId,
-        name: name,
-        pic: pic,
-        user: openid
-    });
+});
+
+//确认收款
+
+api.post('/payee',function *(){
+
+    var openid = this.session.openid;
+
+    var data = this.request.body;
+
+    weiUser.payee(openid, data, function (err) {
+        if(err) console.log(err);
+    })
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    this.redirect("/checkPay")
+
+});
+
+api.post('/roadSub',function *(){
+
+
+    var data = this.request.body;
+
+    var openid = this.session.openid;
+    var place1 = data.place1
+    var place2 = data.place2
+
+    console.log(data)
+
+    weiUser.saveRoad(openid, data, function(err) {
+        if(err) {
+            console.log(err)
+        }
+    })
+
+    var wechatApi = new Wechat(config.wechat)
+    var data = yield wechatApi.fetchAccessToken();
+    console.log(data)
+    var access_token = data.access_token
+    var ticketdata = yield wechatApi.fetchTicket(access_token);
+    console.log(ticketdata)
+    var ticket = ticketdata.ticket
+    console.log(ticket);
+    var url = this.href.replace(':8000','');
+
+    console.log(ticket);
+    console.log(url);
+    var params = sign(ticket ,url);
+    console.log("...........")
+    console.log(params.noncestr)
+    console.log(params.timestamp)
+    console.log(params.signature)
+
+    console.log(this.request.url)
+
+    this.redirect("/roadInfor")
 
 });
 
@@ -1793,6 +2030,7 @@ api.get('/AllList',function *(){
                 }
 
                 that.len2 = total;
+                that.doc2 = docs;
             })
 
             weiUser.findList(function (err, docs, total) {
@@ -1800,7 +2038,7 @@ api.get('/AllList',function *(){
                     console.log(err)
                 }
                 that.doc = docs
-                that.doc2 = docs;
+
                 console.log("docs " + docs)
                 that.lenIt = total
 
@@ -1898,42 +2136,19 @@ api.get('/workIntro/:_id',function *(){
 });
 // new 作品
 
-api.get('/theWorks/:_id',function *(){
+//center 行政模块
+api.get('/notice',function *(){
 
-    var getUrl = this.request.url;
+        var doc  = {};
+        var len  = 0;
 
-    // console.log(getUrl)
-    var name =""
-
-    var getId = getUrl.replace('/theWorks/', "");
-
-    var relId = ObjectID(getId);
-    var status = ""
-
-    var doc = [];
-    var len = 0;
-
-    weiUser.findListName(relId, function(err, docs) {
-        if(err) {
-            console.log(err)
-        }
-       status = docs.status2;
-
-        if(status !== "true") {
-            weiUser.showWorks(relId, function(err, docs, total) {
-               if(err) {
-                   console.log(err)
-               }
-                //console.log(docs)
-
-                doc = docs;
-                len = total;
-            })
-        }
-
-    })
-
-
+        weiUser.findNews(function (err, docs, total) {
+            if(err){
+                console.log(err)
+            }
+            doc = docs;
+            len = total;
+        })
         var wechatApi = new Wechat(config.wechat)
         var data = yield wechatApi.fetchAccessToken();
         console.log(data)
@@ -1952,19 +2167,14 @@ api.get('/theWorks/:_id',function *(){
         console.log(params.timestamp)
         console.log(params.signature)
 
-        console.log(status)
+        //console.log(status)
         //console.log(doc)
 
-        if(status == "true") {
-            this.body = ejs.render(index.tpl40,{
-                relId: relId
-            });
-        }else{
             this.body = ejs.render(index.tpl41 , {
                 doc: doc,
                 len: len
             });
-        }
+
 
 });
 
@@ -2066,13 +2276,13 @@ api.get('/indexProject/:_id/:userid',function *(){
     }
 });
 
-api.post('/schoolList',function *(){
+api.post('/companyList',function *(){
 
     var data = this.request.body;
 
-    var school = data.username;
+    var company = data.username;
 
-    weiUser.saveSchool(school, function(err) {
+    weiUser.saveCompany(company, function(err) {
         if(err) {
             console.log(err)
         }
@@ -2101,41 +2311,41 @@ api.post('/schoolList',function *(){
 
 });
 
-api.post('/workList',function *(){
-
-    var data = this.request.body;
-
-    var work = data.username;
-
-    weiUser.saveWork(work, function(err) {
-        if(err) {
-            console.log(err)
-        }
-    })
-
-    var wechatApi = new Wechat(config.wechat)
-    var data = yield wechatApi.fetchAccessToken();
-    console.log(data)
-    var access_token = data.access_token
-    var ticketdata = yield wechatApi.fetchTicket(access_token);
-    console.log(ticketdata)
-    var ticket = ticketdata.ticket
-    console.log(ticket);
-    var url = this.href.replace(':8000','');
-
-    console.log(ticket);
-    console.log(url);
-    var params = sign(ticket ,url);
-    console.log("...........")
-    console.log(params.noncestr)
-    console.log(params.timestamp)
-    console.log(params.signature)
-
-    console.log(this.request.url)
-
-    this.body = ejs.render(index.tpl34);
-
-});
+//api.get('/expense',function *(){
+//
+//    //var data = this.request.body;
+//    //
+//    //var work = data.username;
+//    //
+//    //weiUser.saveWork(work, function(err) {
+//    //    if(err) {
+//    //        console.log(err)
+//    //    }
+//    //})
+//
+//    var wechatApi = new Wechat(config.wechat)
+//    var data = yield wechatApi.fetchAccessToken();
+//    console.log(data)
+//    var access_token = data.access_token
+//    var ticketdata = yield wechatApi.fetchTicket(access_token);
+//    console.log(ticketdata)
+//    var ticket = ticketdata.ticket
+//    console.log(ticket);
+//    var url = this.href.replace(':8000','');
+//
+//    console.log(ticket);
+//    console.log(url);
+//    var params = sign(ticket ,url);
+//    console.log("...........")
+//    console.log(params.noncestr)
+//    console.log(params.timestamp)
+//    console.log(params.signature)
+//
+//    console.log(this.request.url)
+//
+//    this.body = ejs.render(index.tpl3);
+//
+//});
 
 
 api.get('/code', function*(){
@@ -2705,7 +2915,6 @@ api.post('/checkPro', function *(){
 
 //登陆
 
-// 审核小组报名的状态;
 api.get('/reg', function *(){
 
     var wechatApi = new Wechat(config.wechat)
@@ -2808,30 +3017,63 @@ api.post('/information/:id', function*(){
             }
         })
     })
-
-    //var userOpenId = weiUsername.weixinUser.userCheck;
-    //
-    //console.log(userOpenId)
-
-    //console.log(docIndex)
-
-    //console.log(docIndex)
-    //
-    //var privateInfor = {}
-    //
-    //privateInfor.identifyUser = docIndex.userId
-    //privateInfor._id = docIndex._id
-    //privateInfor.Userpic = docIndex.Userpic
-    //privateInfor.userCheck = docIndex.userCheck
-    //
-    //
-    //console.log(privateInfor)
-    //
-    //console.log(docIndex)
-
-
     //this.redirect('/profiles/'+getConstestId)
     this.redirect('/checkInformation')
+})
+
+api.post('/business/:id', function*(){
+
+    var docIndex = {};
+
+    var openid = this.session.openid;
+
+    console.log("hhh"+openid);
+
+
+
+    var url = this.request.url;
+    var getConstestId = url.replace("/business/", "");
+
+    var that = this
+
+    weiUser.findOpen(openid ,function(err, docs) {
+        if(err) {
+            docs = {};
+        }
+
+        docIndex = docs
+        var post = that.request.body;
+        console.log(post)
+
+        var userData = {
+            businessNum : post.businessNum,
+            locations : post.locations,
+            numbers : post.numbers,
+            out_trade_no : post.out_trade_no //订单号
+        }
+
+
+        // console.log(weiUsername.name)
+        weiUser.saveBasic(docIndex ,openid ,function(err) {
+
+            if(err) {
+                console.log(err)
+            }
+
+            weiUser.saveInfor(userData ,openid ,function(err) {
+
+                if(err) {
+                    console.log(err)
+                }
+            })
+        })
+
+
+
+
+    })
+    //this.redirect('/profiles/'+getConstestId)
+    this.redirect('/profiles/'+getConstestId)
 })
 
 
@@ -2840,15 +3082,15 @@ api.post('/information/:id', function*(){
 api.post('/profiles/:id',function*(){
 
     var url = this.request.url;
-    var getId = url.replace("/profiles/", "");
-    var relId = ObjectID(getId);
+    var getId = url.replace("/profiles/", ""); //报销单号
+    //var relId = ObjectID(getId);
 
 
 
     var openid = this.session.openid;
     //var name = this.session.name;
 
-    console.log("openID is " + openid)
+    //console.log("openID is " + openid)
 
 
     var parts = parse(this);
@@ -2856,10 +3098,9 @@ api.post('/profiles/:id',function*(){
     console.log(parts);
 
 
-
     while ((part = yield parts)) {
         var getName = part.mimeType;
-       // var getIndex = getName.replace("application/" , "");
+        // var getIndex = getName.replace("application/" , "");
         console.log(part)
         //console.log("...." +getIndex);
         //if(getIndex == 'pdf') {
@@ -2880,96 +3121,62 @@ api.post('/profiles/:id',function*(){
 
         console.log('uploading %s -> %s', part.filename, stream.path);
 
-
-
         //var post = yield parse(this.request);
         //console.log("name "+post.name)
         //
         ////var that = this
 
-    var profile = stream.path.replace('/Users/mac/wechat/uploads/',"");
+        var profile = stream.path.replace('/Users/mac/wechat/uploads/', "");
 
-    qiniu.conf.ACCESS_KEY = qiniuConfig.AK;
-    qiniu.conf.SECRET_KEY = qiniuConfig.SK;
+        qiniu.conf.ACCESS_KEY = qiniuConfig.AK;
+        qiniu.conf.SECRET_KEY = qiniuConfig.SK;
 
-    var bucket = qiniuConfig.bucket;
+        var bucket = qiniuConfig.bucket;
 
-    var key = 'weixinProject/'+ getId +'/' + openid + '/' +  part.filename
+        var key = 'weixinProject/' + getId + '/' + openid + '/' + part.filename
 
-    function uptoken(bucket, key) {
-        var putPolicy = new qiniu.rs.PutPolicy(bucket + ":" + key);
-        return putPolicy.token();
-    }
+        function uptoken(bucket, key) {
+            var putPolicy = new qiniu.rs.PutPolicy(bucket + ":" + key);
+            return putPolicy.token();
+        }
 
 //生成上传 Token
-    var token = uptoken(bucket, key);
+        var token = uptoken(bucket, key);
 
-        var target = __dirname + "/uploads/" +  part.filename;
-        hashCode.
-
-    function uploadFile(uptoken, key, localFile) {
-        var extra = new qiniu.io.PutExtra();
-        qiniu.io.putFile(uptoken, key, localFile, extra, function (err, ret) {
-            if (!err) {
-               console.log("上传成功")
-                console.log(ret.hash, ret.key, ret);
-
-
-            }else{
-                console.log(err)
-                console.log(ret)
-                console.log("fail")
-            }
-        });
-    }
-
+        //var target = __dirname + "/uploads/" + part.filename;
+        var target = stream.path;
 
 
         console.log(target)
 
-    uploadFile(token, key, target);
+        uploadFile(token, key, target);
+
+        function uploadFile(uptoken, key, localFile) {
+            var extra = new qiniu.io.PutExtra();
+            qiniu.io.putFile(uptoken, key, localFile, extra, function (err, ret) {
+                hashCode.hashcode(target, function (data) {
+                   if(data == ret.hash) {
+                       console.log("上传成功")
+                       console.log(ret.hash, ret.key, ret);
+                   }else{
+                       uploadFile(token, key, target);
+                   }
+                })
+            });
+        }
+
 
         qiniu.conf.ACCESS_KEY = qiniuConfig.AK;
         qiniu.conf.SECRET_KEY = qiniuConfig.SK;
-    var qiniuUrl = 'http://7xt1fn.com1.z0.glb.clouddn.com/' + key;
+        var qiniuUrl = 'http://7xt1fn.com1.z0.glb.clouddn.com/' + key;
 
-    var policy = new qiniu.rs.GetPolicy();
+        var policy = new qiniu.rs.GetPolicy();
 
-    var downloadUrl = policy.makeRequest(qiniuUrl);
-    console.log(downloadUrl);
+        var downloadUrl = policy.makeRequest(qiniuUrl);
+        console.log(downloadUrl);
     }
-    //weiUser.saveFile(profile , weiUsername.name ,function(err) {
-    //    if(err) {
-    //        console.log(err)
-    //    }
-    //})
 
-    //unoconv.convert('第十一批赴美学生行前辅导会.ppt' , 'pdf', function (err, result) {
-    //    // result is returned as a Buffer
-    //    fs.writeFile('converted.pdf', result);
-    //    console.log("result" + result)
-    //});
-
-    //var userCheck = weiUsername.weixinUser.openID
-    //
-    //var doc = {}
-
-
-
-    //weiUser.findOpen(openid ,function(err, docs) {
-    //    if (err) {
-    //        docs = {};
-    //    }
-    //    doc = docs;
-    //
-    //    weiUser.findYou(relId, openid , doc , profile , downloadUrl ,function(err) {
-    //        if(err) {
-    //            console.log(err)
-    //        }
-    //    })
-    //});
-
-    weiUser.findYou(openid ,relId ,profile , downloadUrl ,function(err) {
+    weiUser.findYou(openid ,getId ,profile , downloadUrl ,function(err) {
         if(err) {
             console.log(err)
         }
@@ -2979,10 +3186,12 @@ api.post('/profiles/:id',function*(){
     //    console.log("no")
     //}
     //var target = __dirname + '/uploads/'  + this.request.file.filename
-
-    this.session.openid = null;
-    this.session.code = null;
+    //
+    //this.session.openid = null;
+    //this.session.code = null;
     this.redirect('/check')
+
+
 });
 
 

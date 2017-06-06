@@ -18,11 +18,11 @@ weiUser.saveId = function(userId , Userpic , userCheck  ,callback) {
         userId: null,
         Userpic: null,
         userCheck: null,
-        Profiles: null,
-        PV: 0 ,
+
+        roadInfor: "false",
         check : false,
-        vote : 1,
-        school: null
+
+        company: null
     }
     if(userId) {
         uesrInfor.userId = userId
@@ -68,6 +68,234 @@ weiUser.saveId = function(userId , Userpic , userCheck  ,callback) {
     })
 }
 
+
+weiUser.saveRoad = function(openid , place ,callback) {
+
+
+    var roadInfor = {
+        StartPlace : place.place1,
+        EndPlace : place.place2,
+        openid : openid,
+        checkStatus: "true"
+    }
+
+    mongo.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+
+        db.collection('users', function(err, collection) {
+            if(err) {
+                mongo.close()
+                return callback(err)
+            }
+            var query = {}
+            if(openid) {
+                query.userCheck = openid
+            }
+            console.log("road" + openid)
+            collection.update(query, {$set:{roadInfor: "true"}}, true, function(err) {
+                if(err) {
+                    return callback(err)
+                }
+                db.collection('road', function(err, collection) {
+                    if(err) {
+                        mongo.close();
+                        return callback(err);
+                    }
+                    //
+                    //collection.save(roadInfor ,function(err) {
+                    //    // mongo.close();
+                    //    if(err) {
+                    //        return callback(err);
+                    //    }
+                    //    return callback(null);
+                    //})
+
+                    var query2 = {}
+                    if(openid) {
+                        query2.openid = openid
+                    }
+                    var place1 = place.place1
+                    var place2 = place.place2
+                    console.log(place2)
+
+                    collection.count(query2, function(err, total) {
+                        if(err) {
+                            return callback(err);
+                        }
+                        if(total < 1) {
+
+                            collection.save(roadInfor, function(err) {
+                                // mongo.close();
+                                if(err) {
+                                    return callback(err);
+                                }
+                                return   callback(null, total);
+                            })
+                        }else if(total == 1){
+                            //mongo.close();
+                            collection.update(query2, {$set:{"StartPlace": place1, "EndPlace": place2, "checkStatus": "true"}} ,true ,function(err) {
+                                // mongo.close();
+                                if(err) {
+                                    return callback(err);
+                                }
+                                return   callback(null);
+                            })
+
+                        }else{
+                            return  callback(null, total);
+                        }
+                    })
+
+
+
+                })
+            })
+
+
+
+        })
+
+    })
+}
+
+weiUser.findRoad = function(openid ,callback) {
+
+
+    mongo.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+        db.collection('road', function(err, collection) {
+            if(err) {
+                mongo.close();
+                return callback(err);
+            }
+
+            var query = {}
+            if(openid) {
+                query.openid = openid;
+            }
+            collection.findOne(query, function(err, docs) {
+                if(err) {
+                    mongo.close();
+                    return callback(err)
+                }
+
+                return callback(null, docs)
+            })
+
+        })
+    })
+}
+
+
+
+weiUser.saveStaInfor = function(openid , data ,callback) {
+
+    var StaInfor = {
+        staNum : data.StaNum,
+        cardNum : data.cardNum,
+        openid : openid,
+        phones: data.phones
+    }
+
+    mongo.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+
+        db.collection('StaInfor', function(err, collection) {
+            if(err) {
+                mongo.close()
+                return callback(err)
+            }
+
+
+      collection.save(StaInfor, function(err) {
+
+          if(err) {
+              mongo.close()
+              return callback(err)
+          }
+          return callback(null)
+      })
+
+        })
+
+    })
+}
+
+weiUser.updateStaInfor = function(openid , data ,callback) {
+
+    var StaInfor = {
+        staNum : data.StaNum,
+        cardNum : data.cardNum,
+        openid : openid,
+        phones: data.phones
+    }
+
+    mongo.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+
+        db.collection('StaInfor', function(err, collection) {
+            if(err) {
+                mongo.close()
+                return callback(err)
+            }
+
+            var query = {}
+            if(openid) {
+                query.openid = openid;
+            }
+       collection.update(query, {"$set":{"staNum":data.StaNum,"cardNum": data.cardNum, "phones":data.phones}} ,true, function(err) {
+
+          if(err) {
+              mongo.close()
+              return callback(err)
+          }
+          return callback(null)
+      })
+
+        })
+
+    })
+}
+
+weiUser.checkStaInfor = function(openid  ,callback) {
+
+    mongo.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+
+        db.collection('StaInfor', function(err, collection) {
+            if(err) {
+                mongo.close()
+                return callback(err)
+            }
+
+            var query = {}
+            if(openid) {
+                query.openid = openid
+            }
+
+         collection.findOne(query, function(err, docs) {
+             if(err) {
+                 mongo.close()
+                 return callback(err)
+             }
+             return callback(null, docs)
+         })
+
+        })
+
+    })
+}
+
 weiUser.saveFile = function(project , username ,callback) {
 
     var date = util.YYYYMMDDHHmmss(new Date(), {dateSep:'.'});
@@ -109,114 +337,96 @@ weiUser.saveFile = function(project , username ,callback) {
       })
 }
 
-//weiUser.saveInfor = function( users , weiusename ,callback) {
-//
-//    var date = util.YYYYMMDDHHmmss(new Date(), {dateSep:'.'});
-//
-//
-//    users.date = date;
-//
-//    mongo.open(function(err , db) {
-//        if(err) {
-//            return callback(err);
-//        }
-//        db.collection('users' , function(err, collection) {
-//            if(err) {
-//                mongo.close();
-//                return callback(err);
-//            }
-//
-//            var query = {}
-//            if(weiusename) {
-//                query.userId = weiusename
-//            }
-//
-//            collection.find(query).toArray(function(err, docs) {
-//                if(err) {
-//                    return callback(err);
-//                }
-//                if(docs.userId !== null) {
-//                    collection.update(query,{$set:{name: users.username,date: date , capita:users.capital,member:users.number,comment:users.comment,projectName:users.project}},true , function(err) {
-//                        mongo.close();
-//                        if(err) {
-//                            return callback(err)
-//                        }
-//                        callback(null);
-//                    })
-//                }
-//            })
-//        })
-//    })
-//}
 
-
-weiUser.saveInfor = function( users , privateInfor , checkOpenid, checkName,relId ,callback) {
+weiUser.saveBasic = function(privateInfor , checkOpenid ,callback) {
 
     var date = util.YYYYMMDDHHmmss(new Date(), {dateSep:'.'});
 
-    users.lab = relId
-    users.date = date;
-   // users.priveteId = privateInfor.userCheck
-    users.priveteId = checkOpenid;
-    users.userId = privateInfor._id
-    users.Userpic = privateInfor.Userpic
-   // users.identifyUser = privateInfor.userId
-    users.identifyUse = checkName;
-    users.project = users.project
-    users.status = false;
-    users.exsit = true
-    users.voteUser = []
-    users.PV = 0
+    //users.lab = relId
+    privateInfor.date = date;
+    privateInfor.priveteId = checkOpenid;
+
 
 
     mongo.open(function(err , db) {
         if(err) {
             return callback(err);
         }
-        db.collection('contest' , function(err, collection) {
+        db.collection('Business' , function(err, collection) {
             if(err) {
                 mongo.close();
                 return callback(err);
             }
+
             var query = {}
-            if(relId) {
-                query._id = relId
+            if(checkOpenid) {
+                query.priveteId = checkOpenid
             }
-            collection.findOne(query,function(err, docs) {
+            collection.count(query, function(err, total) {
                 if(err) {
                     return callback(err);
                 }
-               if(docs.status2 == "true") {
-                   if(docs.joins.length < 1) {
-                       console.log("22222")
-                       collection.update(query, {$push:{"joins":users}}, true,function(err) {
-                           docs.exsit = false;
-                           //mongo.close();
-                           if(err) {
-                               return callback(err);
-                           }
-                           return  callback(null);
-                       })
-                   } else {
-                       console.log("33333");
-                       collection.update(query, {$push: {"joins": users}}, true, function (err) {
-                           //mongo.close();
-                           if (err) {
-                               return callback(err);
-                           }
-                           return callback(null);
-                       })
+                if(total < 1) {
+                    collection.save(privateInfor, function(err) {
+                        // mongo.close();
+                        if(err) {
+                            return callback(err);
+                        }
+                        return   callback(null, total);
+                    })
+                }else {
+                    //mongo.close();
+                    return  callback(null, total);
+                }
+            })
+        })
+    })
+}
 
+weiUser.saveInfor = function( users , checkOpenid ,callback) {
 
-                       }
+    var date = util.YYYYMMDDHHmmss(new Date(), {dateSep:'.'});
+    users.date = date;
 
-               } else {
-                   //mongo.close();
-                   var docs = {
-                       content: "报名截止",
-                   }
-                   return   callback(null, docs);
-               }
+    users.businessNum = users.businessNum
+    users.locations = users.locations
+    users.numbers = users.numbers
+    users.out_trade_no = users.out_trade_no;
+    users.isCheck = "false";
+    users.isPay = "false";
+    users.isPayee = "false";
+    users.checkUser = null;
+    users.profile = null;
+    users.downloadUrl = null;
+
+    mongo.open(function(err , db) {
+        if(err) {
+            return callback(err);
+        }
+        db.collection('Business' , function(err, collection) {
+            if(err) {
+                mongo.close();
+                return callback(err);
+            }
+
+            var query = {}
+
+            if(checkOpenid) {
+                query.priveteId = checkOpenid
+            }
+
+            collection.findOne(query, function(err, docs) {
+                if(err) {
+                    return callback(err);
+                }
+                collection.update(query, {$push:{"materialInfor": users}}, true , function(err) {
+                    //mongo.close();
+                    if(err) {
+                        return callback(err);
+                    }
+                    return  callback(null);
+                })
+
             })
         })
     })
@@ -304,108 +514,59 @@ weiUser.saveVotes = function(projectId, youId, project ,callback) {
     })
 }
 
+//检查在途信息
+//weiUser.checkRoad = function(openid, callback) {
+//    mongo.open(function(err, db) {
+//        if(err) {
+//            return callback(err);
+//        }
+//        db.collection('road', function(err, collection) {
+//            if(err) {
+//                mongo.close();
+//                return callback(err);
+//            }
+//            var query = {}
+//            if(openid) {
+//                query.openid = openid;
+//            }
+//           collection.findOne(query, function (err, docs) {
+//               if(err) {
+//                   return callback(err)
+//               }
+//               return callback(null, docs)
+//           })
+//        })
+//    })
+//}
+weiUser.AllRoad = function(callback) {
 
-weiUser.saveStatus = function(projectID, openID , callback) {
-    console.log("projectID "+ projectID);
-    console.log("openID "+ openID);
 
     mongo.open(function(err, db) {
         if(err) {
             return callback(err);
         }
-        db.collection('status', function(err, collection) {
+        db.collection('road', function(err, collection) {
             if(err) {
                 mongo.close();
                 return callback(err);
             }
             collection.count({}, function(err, total) {
-                if(err) {
-                    mongo.close();
+                if (err) {
                     return callback(err);
                 }
-                var query3 = {};
-                if(openID) {
-                    query3.openID = openID
-                }
-
-                var status = {
-                    status: false ,
-                    projectId : projectID,
-                    openID: openID
-                }
-                //if(total < 1 ) {
-                //    collection.save(voteUser, function(err, docs) {
-                //        if(err) {
-                //            return callback(err);
-                //        }
-                //        callback(null);
-                //    })
-                //}else {
-                //    collection.findOne(query3, function(err, docs) {
-                //        if(err) {
-                //            return callback(err);
-                //        }
-                //        console.log("voteIdentity " +openID)
-                //        if(docs.openID == openID) {
-                //            mongo.close();
-                //            callback(null);
-                //        }else{
-                //            collection.save(voteUser, function(err, docs) {
-                //                if(err) {
-                //                    return callback(err);
-                //                }
-                //                callback(null);
-                //            })
-                //        }
-                //    })
-                //}
-                collection.save(status, function(err, docs) {
-                    if(err) {
-                        return callback(err);
+                collection.find({}).toArray(function (err, docs) {
+                    if (err) {
+                        mongo.close()
+                        return callback(err)
                     }
-                    return  callback(null);
+                    return callback(null, docs, total)
                 })
             })
         })
     })
 }
 
-//
-//weiUser.checkView = function(name, callback) {
-//    mongo.open(function(err, db) {
-//        if(err) {
-//            return callback(err);
-//        }
-//        db.collection('users', function(err, collection) {
-//            if(err) {
-//                mongo.close();
-//                return callback(err);
-//            }
-//            var query = {}
-//            if(name) {
-//                query.userId = name;
-//            }
-//            collection.count(query, function(err, total) {
-//                if(err) {
-//                    mongo.close();
-//                    return callback(err);
-//                }
-//                if(total>=1) {
-//                    collection.update(query,{$set:{userId: name}}, function(err) {
-//                        mongo.close();
-//                        if(err) {
-//                         return callback(err);
-//                     }
-//                        callback(null);
-//                    })
-//                }
-//            })
-//        })
-//    })
-//}
-
-
-weiUser.checkView = function(name, callback) {
+weiUser.checkRoad = function(openid, callback) {
     mongo.open(function(err, db) {
         if(err) {
             return callback(err);
@@ -416,15 +577,85 @@ weiUser.checkView = function(name, callback) {
                 return callback(err);
             }
             var query = {}
-            if(name) {
-                query.userId = name;
+            if(openid) {
+                query.userCheck = openid;
             }
-           collection.find(query).toArray(function(err, docs) {
-               //mongo.close();
+           collection.findOne(query, function (err, docs) {
                if(err) {
+                   return callback(err)
+               }
+               return callback(null, docs)
+           })
+        })
+    })
+}
+
+//确认收款
+
+weiUser.payee = function(openid, data ,callback) {
+
+    var businessNum  = data.businessNum;
+    console.log(openid)
+    console.log(businessNum)
+    mongo.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+        db.collection("Business", function(err, collection) {
+            if(err) {
+                return callback(err)
+            }
+            collection.update({"priveteId":openid , materialInfor:{$elemMatch:{businessNum:businessNum}}}, {$set:{"materialInfor.$.isPayee":"true"}},{w:0},function(err) {
+
+                if(err) {
+                    return callback(err)
+                }
+                return callback(null);
+            })
+        })
+    })
+}
+
+//结束行程
+weiUser.endRoad = function(openid, callback) {
+    mongo.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+        db.collection('users', function(err, collection) {
+            if(err) {
+                mongo.close();
+                return callback(err);
+            }
+            var query = {}
+            if(openid) {
+                query.userCheck = openid;
+            }
+           collection.update(query,{"$set":{"roadInfor": "false"}}, function (err) {
+               if(err) {
+                   mongo.close();
                    return callback(err);
                }
-               return callback(null, docs);
+
+               db.collection('road', function(err, collection) {
+                   if(err) {
+                       mongo.close();
+                       return callback(err);
+                   }
+                   var query2 = {}
+                   if(openid) {
+                       query2.openid = openid;
+                   }
+                   collection.update(query2,{"$set":{"checkStatus": "false"}}, function (err) {
+                       if(err) {
+                           mongo.close();
+                           return callback(err);
+                       }
+
+                     return callback(null)
+                   })
+               })
+
            })
         })
     })
@@ -456,6 +687,32 @@ weiUser.find = function(username ,callback) {
                     return callback(null, docs ,total);
                 })
             })
+        })
+    })
+}
+
+weiUser.checkpay = function(openid ,callback) {
+    mongo.open(function(err, db) {
+        if(err) {
+            return callback(err);
+        }
+        db.collection('Business', function(err, collection) {
+            if(err) {
+                mongo.close();
+                return callback(err);
+            }
+            var query = {}
+            if(openid) {
+                query.priveteId = openid;
+            }
+            collection.findOne(query, function(err, docs) {
+                if(err) {
+                    mongo.close();
+                    return callback(err);
+                }
+                return callback(null, docs)
+            })
+
         })
     })
 }
@@ -514,19 +771,6 @@ weiUser.findId = function(_id, userCheck  ,openID ,callback) {
                                     mongo.close();
                                     return callback(err);
                                 }
-
-                                //console.log("jaja "+ userCheck);
-                                //collection.findOne(query2, function(err, doc) {
-                                //    console.log("muuuuu  "+doc)
-                                //    if(doc) {
-                                //        collection.update(query2, {$inc:{"PV" :1}}, function(err) {
-                                //            if(err) {
-                                //                return callback(err);
-                                //            }
-                                //            callback(null);
-                                //        })
-                                //    }
-                                //})
                                 console.log("usrcheck"+userCheck);
                                 console.log("_id"+_id);
                                 console.log("openid"+openID)
@@ -581,12 +825,12 @@ weiUser.userIndex = function(_id , getUserId ,callback) {
 
 
 
-weiUser.findList = function(callback) {
+weiUser.findNews = function(callback) {
     mongo.open(function(err, db) {
         if(err) {
             return callback(err)
         }
-        db.collection('contest', function(err, collection) {
+        db.collection('News', function(err, collection) {
             if(err) {
                 mongo.close();
                 return callback(err);
@@ -828,90 +1072,57 @@ weiUser.findAll = function( projectId ,callback) {
     })
 }
 
-weiUser.findYou = function(checkOpenid, relId ,profile ,downloadUrl ,callback) {
+//上传报销凭证
+weiUser.findYou = function(checkOpenid, getId ,profile ,downloadUrl ,callback) {
 
-
-    var infor = {
-
-        checkUser: checkOpenid,
-        //relId: project._id,
-        contestId: relId,
-        profile: profile,
-        downloadUrl: downloadUrl
-    }
+    //
+    //var infor = {
+    //    checkUser: checkOpenid, //openid
+    //    //relId: project._id,
+    //    contestId: getId, //报销单号
+    //    profile: profile, //文件路径
+    //    downloadUrl: downloadUrl //URL路径
+    //
+    //}
 
     mongo.open(function(err, db) {
         if(err) {
             return callback(err);
         }
-        db.collection('contest', function(err, collection) {
+        db.collection('Business', function(err, collection) {
             if(err) {
                 mongo.close();
                 return callback(err);
             }
             var query = {}
 
-            if(relId) {
-                query._id = relId;
+            if(checkOpenid) {
+                query.priveteId = checkOpenid;
             }
-
-
-
 
             collection.findOne(query, function(err, docs) {
                 if(err) {
                     return callback(err);
                 }
-               //if(docs.projects.length < 1) {
-               //    console.log("11111");
-               //    collection.update(query, {$push:{"projects": infor}}, true , function(err) {
-               //        mongo.close();
-               //        if(err) {
-               //            return callback(err);
-               //        }
-               //        callback(null);
-               //    })
-               //}
-               //else
+                //collection.update(query, {$push:{"material": infor}}, true , function(err) {
+                //    //mongo.close();
+                //    if(err) {
+                //        return callback(err);
+                //    }
+                //    return  callback(null);
+                //})
+                console.log(checkOpenid)
 
-                collection.update(query, {$push:{"projects": infor}}, true , function(err) {
-                    //mongo.close();
+                console.log(profile)
+                console.log(downloadUrl)
+
+                collection.update({"priveteId":checkOpenid , materialInfor:{$elemMatch:{out_trade_no:getId}}}, {$set:{"materialInfor.$.checkUser":checkOpenid,"materialInfor.$.profile":profile,"materialInfor.$.downloadUrl":downloadUrl}},{w:0},function(err) {
                     if(err) {
                         return callback(err);
                     }
-                    return  callback(null);
+                    return callback(null);
                 })
-               //if(docs.projects.length === 0 || docs.projects == null) {
-               //    console.log("null");
-               //    collection.update(query, {$push:{"projects": infor}}, true , function(err) {
-               //        mongo.close();
-               //        if(err) {
-               //            return callback(err);
-               //        }
-               //        callback(null);
-               //    })
-               //}
-               //else {
-               //
-               //    for(var i = 0; i < docs.projects.length; i++) {
-               //        console.log(docs.projects[i].newname);
-               //        console.log(checkOpenid);
-               //         if(docs.projects[i].checkUser == checkOpenid) {
-               //             console.log("55555");
-               //             mongo.close();
-               //             return callback(null);
-               //         }else {
-               //             console.log("44444");
-               //             collection.update(query, {$push:{"projects": infor}}, true , function(err) {
-               //                 mongo.close();
-               //                 if(err) {
-               //                     return callback(err);
-               //                 }
-               //                 callback(null);
-               //             })
-               //         }
-               //    }
-               //}
+
             })
         })
     })
@@ -1422,18 +1633,18 @@ weiUser.savecode = function(code , openid, callback) {
     })
 }
 
-weiUser.saveSchool = function( school ,callback) {
+weiUser.saveCompany = function( company ,callback) {
     mongo.open(function(err, db) {
         if(err) {
             return callback(err);
         }
-        db.collection('schoolList', function(err, collection) {
+        db.collection('CompanyList', function(err, collection) {
             if(err) {
                 mongo.close()
                 return callback(err);
             }
             var codeObj = {
-                schools: school
+                companys: company
             }
             collection.save(codeObj, function(err) {
                 //mongo.close()
@@ -1447,12 +1658,13 @@ weiUser.saveSchool = function( school ,callback) {
     })
 }
 
-weiUser.findSchool = function(callback) {
+//findSchool找到所有学校
+weiUser.findCompany = function(callback) {
     mongo.open(function(err, db) {
         if(err) {
             return callback(err)
         }
-        db.collection('schoolList', function(err, collection) {
+        db.collection('CompanyList', function(err, collection) {
             if(err) {
                 mongo.close();
                 return callback(err);
@@ -1586,7 +1798,7 @@ weiUser.saveManagers = function(openid ,data ,callback) {
     })
 }
 
-weiUser.insertSchool = function(school , openid ,callback) {
+weiUser.insertCompany = function(company , openid ,callback) {
 
     mongo.open(function(err , db) {
         if(err) {
@@ -1607,7 +1819,7 @@ weiUser.insertSchool = function(school , openid ,callback) {
                     return callback(err);
                 }
                 if(docs.userId !== null) {
-                    collection.update(query,{$set:{school: school}},true , function(err) {
+                    collection.update(query,{$set:{company: company}},true , function(err) {
                         //mongo.close();
                         if(err) {
                             return callback(err)

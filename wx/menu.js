@@ -30,67 +30,50 @@
 module.exports = {
     'button' : [
         {
-        'name': '参赛作品',
+        'name': '信息中心',
         'sub_button':[
           {
                 'type':'view',
-                'name': '赛事列表',
-                'url': 'http://martinbo.s1.natapp.cc/AllList'
+                'name': '行政公告',
+                'url': 'http://martin123.natapp1.cc/notice'
             },
             {
                 'type':'view',
-                'name': '发起活动',
-                'url': 'http://martinbo.s1.natapp.cc/list'
+                'name': '在途信息',
+                'url': 'http://martin123.natapp1.cc/roadInfor'
             }
-        ]},{     'name':'我',
-           'sub_button':[{
-               //'type':'pic_weixin',
-               //'name':'微信发图',
-               //'key':'pic_weixin'
-               'name': '院校管理员申请',
-               'type':'view',
-               'url': 'http://martinbo.s1.natapp.cc/premission'
-            },
+        ]},
+        {     'name':'事务处理',
+           'sub_button':[
                {
                    //'type':'pic_weixin',
                    //'name':'微信发图',
                    //'key':'pic_weixin'
-                   'name': '我的赛事',
+                   'name': '我要报销',
                    'type':'view',
-                   'url': 'http://martinbo.s1.natapp.cc/myContest'
+                   'url': 'http://martin123.natapp1.cc/expenses'
 
-               },{
-                   //'type':'pic_weixin',
-                   //'name':'微信发图',
-                   //'key':'pic_weixin'
-                   'name': '赛事信息',
-                   'type':'view',
-                   'url': 'http://martinbo.s1.natapp.cc/contestInform'
+               },
+           ]},
+        {     'name':'个人中心',
+            'sub_button':[{
+                //'type':'pic_weixin',
+                //'name':'微信发图',
+                //'key':'pic_weixin'
+                'name': '设置',
+                'type':'view',
+                'url': 'http://martin123.natapp1.cc/setInfor'
+            }, {
+                    //'type':'pic_weixin',
+                    //'name':'微信发图',
+                    //'key':'pic_weixin'
+                    'name': '报销查询',
+                    'type':'view',
+                    'url': 'http://martin123.natapp1.cc/checkPay'
 
-               },{
-                   //'type':'pic_weixin',
-                   //'name':'微信发图',
-                   //'key':'pic_weixin'
-                   'name': '赛事管理',
-                   'type':'view',
-                   'url': 'http://martinbo.s1.natapp.cc/Mancontest'
+                }
 
-               }
-           // , {
-           //    'type': 'location_select',
-           //    'name': '地理',
-           //    'key': 'location_select'
-           //    //}
-           //    //},{
-           //    //        'name':'发图片谢谢',
-           //    //        'type':'media_id',
-           //    //        'media_id':'6303015419572505333'
-           //    //    },{
-           //    //        'name':'跳转图文',
-           //    //        'type':'view_limited',
-           //    //        'media_id':'6303015419572505333'
-           //    //    }]
-           //}
-           ]
-    }]
+            ]}
+
+    ]
 }
